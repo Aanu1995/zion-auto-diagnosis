@@ -1,7 +1,17 @@
+import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
+import 'package:zion/model/profile.dart';
+import 'package:zion/router/router.dart';
+import 'package:zion/service/auth_service.dart';
+import 'package:zion/user_inteface/components/custom_bottomsheets.dart';
+import 'package:zion/user_inteface/components/custom_dialogs.dart';
 import 'package:zion/user_inteface/components/empty_space.dart';
+import 'package:zion/user_inteface/screens/authentication/custom_components.dart';
+import 'package:zion/user_inteface/screens/my_home_page.dart';
 import 'package:zion/user_inteface/utils/color_utils.dart';
+import 'package:zion/user_inteface/utils/firebase_utils.dart';
 import 'package:zion/user_inteface/utils/validator.dart';
 
 class SignupPage extends StatelessWidget {
@@ -95,6 +105,9 @@ class _CustomFormFields extends StatefulWidget {
 }
 
 class __CustomFormFieldsState extends State<_CustomFormFields> {
+  // checks if the sign up button has been Clicked
+  bool isCreatingAccount = false;
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -187,6 +200,7 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
           TextFormField(
             controller: _emailController,
             focusNode: _emailFocus,
+            keyboardType: TextInputType.emailAddress,
             validator: Validators.validateEmail(),
             textInputAction: TextInputAction.next,
             style: style,
@@ -231,9 +245,10 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
           // confirm password input field
           TextFormField(
             controller: _confirmPasswordController,
-            obscureText: obscureText,
+            obscureText: obscureText2,
             focusNode: _confirmFocus,
-            validator: Validators.confirmPassword(_passwordController.text),
+            validator: (confirm) =>
+                Validators.confirmPassword(confirm, _passwordController.text),
             style: style,
             decoration: decoration(
               'CONFIRM PASSWORD',
@@ -245,24 +260,12 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
             ),
           ),
           EmptySpace(multiple: 3.0),
-          // login button
-          MaterialButton(
-            color: ColorUtils.primaryColor,
-            height: 60.0,
-            elevation: 5.0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            minWidth: double.maxFinite,
-            child: Text(
-              "CREATE ACCOUNT",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16.0,
-                letterSpacing: 1.5,
-              ),
-            ),
-            onPressed: createAccount,
+          // sign up button
+          AuthenticationButton(
+            text: "CREATE ACCOUNT",
+            authenticatingText: "CREATING ACCOUNT",
+            isAuthenticating: isCreatingAccount,
+            onPressed: _createAccount,
           ),
         ],
       ),
@@ -270,9 +273,42 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
   }
 
 // this function is called to create account
-  void createAccount() {
+  void _createAccount() async {
+    // checks if the required field has been filled appropriately
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
+      SystemChannels.textInput.invokeMethod('TextInput.hide'); // hides keyboard
+      FocusScope.of(context).unfocus();
+      // show the progress indicator in the button
+      // checks if there is internet connection
+      bool connectionStatus = await DataConnectionChecker().hasConnection;
+      if (!connectionStatus) {
+        CustomButtomSheets.showConnectionError(context);
+        return;
+      }
+      setState(() {
+        isCreatingAccount = true;
+      });
+      final user = UserProfile(
+        name: _nameController.text.toString(),
+        email: _emailController.text.toString(),
+        phoneNumber: _phoneController.text.toString(),
+      );
+      // calls the create account function
+      String result = await AuthService.createAccount(
+          user, _passwordController.text.toString());
+      setState(() {
+        isCreatingAccount = false;
+      });
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (result == FirebaseUtils.success) {
+          // Takes the user to the home page if account creation is successful
+          Router.removeWidget(context: context, page: MyHomePage());
+        } else {
+          // shows error message if account could not be created
+          CustomDialogs.showErroDialog(context, result);
+        }
+      });
     }
   }
 }

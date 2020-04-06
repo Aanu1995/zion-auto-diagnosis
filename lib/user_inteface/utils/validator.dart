@@ -52,16 +52,14 @@ class Validators {
     };
   }
 
-  static String Function(String) confirmPassword(String password,
+  static String confirmPassword(String confirmPassword, String password,
       [String error]) {
-    return (String value) {
-      if (value.isEmpty) {
-        return error ?? 'Password is required.';
-      }
-      if (value != password) {
-        return error ?? 'Passwords do not match';
-      }
-      return null;
-    };
+    if (confirmPassword.isEmpty) {
+      return error ?? 'Password is required.';
+    }
+    if (confirmPassword != password) {
+      return error ?? 'Passwords do not match';
+    }
+    return null;
   }
 }

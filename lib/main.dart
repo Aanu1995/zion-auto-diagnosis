@@ -1,9 +1,7 @@
-import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:zion/router/router.dart';
-import 'package:zion/user_inteface/components/custom_dialogs.dart';
 import 'package:zion/user_inteface/utils/color_utils.dart';
 import 'package:zion/user_inteface/utils/global_data_utils.dart';
 

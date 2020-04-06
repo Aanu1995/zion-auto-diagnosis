@@ -1,4 +1,5 @@
 import 'package:app_settings/app_settings.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,6 +7,8 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:zion/router/router.dart';
 import 'package:zion/user_inteface/components/custom_dialogs.dart';
 import 'package:zion/user_inteface/utils/color_utils.dart';
+import 'package:zion/user_inteface/utils/firebase_utils.dart';
+import 'package:zion/user_inteface/utils/imageUtils.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -19,6 +22,25 @@ class _SplashPageState extends State<SplashPage> {
     delay();
   }
 
+// this delays the screen for 3 seconds
+  void delay() async {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      // takes the user to the login screen after 2 seconds
+      await Future.delayed(Duration(seconds: 2));
+      // calls notifications function
+      checkNotificationPermissionStatus();
+      // checks if user has been authenticated
+      // takes user to home page if authenticated else login page
+      FirebaseUser user = await FirebaseUtils.auth.currentUser();
+      String page = Routes.LOGINPAGE;
+      if (user != null) {
+        page = Routes.MYHOMEPAGE;
+      }
+      Router.goToReplacementScreen(context: context, page: page);
+    });
+  }
+
+// checks if notification permission is allowed on the user device
   void checkNotificationPermissionStatus() async {
     // If you want to know if the user allowed/denied permission,
     OneSignal.shared
@@ -26,19 +48,11 @@ class _SplashPageState extends State<SplashPage> {
     // checks if notification permission is granted
     final result = await OneSignal.shared.getPermissionSubscriptionState();
     if (result.permissionStatus.status != OSNotificationPermission.authorized) {
+      // opens permission dialog
       await CustomDialogs.permissionDialog(context: context);
+      // opens app settings for user to enable notification permission
       AppSettings.openAppSettings();
     }
-  }
-
-// this delays the screen for 3 seconds
-  void delay() async {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
-      // takes the user to the login screen after 2 seconds
-      await Future.delayed(Duration(seconds: 2));
-      checkNotificationPermissionStatus();
-      Router.goToReplacementScreen(context: context, page: Routes.LOGINPAGE);
-    });
   }
 
   @override
@@ -50,7 +64,7 @@ class _SplashPageState extends State<SplashPage> {
           children: [
             SizedBox(height: MediaQuery.of(context).size.width * 0.4),
             Image.asset(
-              'assets/diagnose.png',
+              ImageUtils.diagnosisBox,
               height: 150.0,
               color: Colors.white,
               width: double.maxFinite,
