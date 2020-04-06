@@ -5,7 +5,6 @@ import 'package:zion/model/profile.dart';
 import 'package:zion/service/auth_service.dart';
 import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/user_inteface/screens/settings/profile_page.dart';
-import 'package:zion/user_inteface/utils/imageUtils.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -13,12 +12,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  @override
-  void initState() {
-    super.initState();
-    UserProfileService.fetchUserData();
-  }
-
   @override
   void dispose() {
     UserProfileService.dispose();
@@ -29,11 +22,9 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Settings')),
-      body: StreamBuilder<UserProfile>(
-        stream: UserProfileService.userProfileStreamController.stream,
-        initialData: UserProfileService.initialData,
+      body: ProfileStreamData(
         builder: (context, snapshot) {
-          UserProfile userProfile = snapshot.data;
+          final userProfile = snapshot.data;
           return SettingsList(
             sections: [
               SettingsSection(
@@ -56,13 +47,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 tiles: [
                   SettingsTile(
                     title: 'Profile Picture',
-                    leading: CircleAvatar(
-                      backgroundImage: AssetImage(ImageUtils.defaultProfile),
+                    leading: CustomCircleAvatar(
+                      size: 50.0,
+                      profileURL: userProfile.profileURL,
                     ),
                     onTap: () => pushNewScreen(
                       context,
                       screen: ProfilePage(),
-                      withNavBar: true,
+                      withNavBar: false,
                     ),
                   ),
                   SettingsTile(
@@ -113,6 +105,33 @@ class _SettingsPageState extends State<SettingsPage> {
           );
         },
       ),
+    );
+  }
+}
+
+class ProfileStreamData extends StatefulWidget {
+  final Widget Function(BuildContext, AsyncSnapshot<UserProfile>) builder;
+  ProfileStreamData({this.builder});
+
+  @override
+  _ProfileStreamDataState createState() => _ProfileStreamDataState();
+}
+
+class _ProfileStreamDataState extends State<ProfileStreamData> {
+  @override
+  void initState() {
+    super.initState();
+    UserProfileService.fetchUserData();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<UserProfile>(
+      stream: UserProfileService.userProfileStreamController.stream,
+      initialData: UserProfileService.initialData,
+      builder: (context, snapshot) {
+        return widget.builder(context, snapshot);
+      },
     );
   }
 }
