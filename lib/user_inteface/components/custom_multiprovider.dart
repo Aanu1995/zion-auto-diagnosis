@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zion/model/app.dart';
 
-class CustomMultiprovider extends StatelessWidget {
+class CustomMultiprovider extends StatefulWidget {
   final child;
-  CustomMultiprovider({this.child});
+  const CustomMultiprovider({this.child});
+
+  @override
+  _CustomMultiproviderState createState() => _CustomMultiproviderState();
+}
+
+class _CustomMultiproviderState extends State<CustomMultiprovider> {
   AppModel _appModel = AppModel();
 
   @override
@@ -18,7 +24,7 @@ class CustomMultiprovider extends StatelessWidget {
           create: (context) => _appModel,
         )
       ],
-      child: child,
+      child: widget.child,
     );
   }
 }
