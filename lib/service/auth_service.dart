@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/user_inteface/screens/authentication/login_page.dart';
@@ -38,11 +39,10 @@ class AuthService {
   static signOut(BuildContext context) async {
     await FirebaseUtils.auth.signOut();
     // Takes user to login page after signing out
-
-    pushNewScreen(
+    pushDynamicScreen(
       context,
-      screen: LoginPage(),
-      platformSpecific: false,
+      screen: MaterialPageRoute(builder: (context) => LoginPage()),
+      platformSpecific: true,
       withNavBar: false,
     );
   }

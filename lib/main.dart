@@ -1,12 +1,23 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:zion/model/app.dart';
 import 'package:zion/router/router.dart';
+import 'package:zion/user_inteface/components/custom_multiprovider.dart';
+import 'package:zion/user_inteface/screens/authentication/login_page.dart';
+import 'package:zion/user_inteface/screens/my_home_page.dart';
+import 'package:zion/user_inteface/screens/splash_page.dart';
 import 'package:zion/user_inteface/utils/color_utils.dart';
 import 'package:zion/user_inteface/utils/global_data_utils.dart';
+import 'package:zion/user_inteface/utils/theme_utils.dart';
 
 // our application starts running here
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(CustomMultiprovider(child: MyApp()));
+}
 
 class MyApp extends StatefulWidget {
   // This widget is the root of your application.
@@ -15,11 +26,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  // by default the user has not been authenticated
+  // user will be taken to login screen
+  Widget page = LoginPage();
+
   @override
   void initState() {
     super.initState();
     // One signal initialization
     initPlatformState();
+    // has user logged in or not
+    authenticationStatus();
   }
 
   // intializes the function for one signal notification
@@ -39,20 +56,47 @@ class _MyAppState extends State<MyApp> {
         .setInFocusDisplayType(OSNotificationDisplayType.notification);
   }
 
+  // checks if user has been authenticated
+  void authenticationStatus() async {
+    // takes user to home page if authenticated else login page
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    if (user != null) {
+      page = MyHomePage();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: ColorUtils.statusBarColor,
-    ));
-    return MaterialApp(
-      title: 'Zion Auto Diagnosis',
-      theme: ThemeData(
-        // defines the primary color and the accent color
-        primaryColor: ColorUtils.primaryColor,
-        accentColor: ColorUtils.primaryColor,
-      ),
-      debugShowCheckedModeBanner: false,
-      routes: Routes.getroutes, // defines the routes of the application
+    return Consumer<SplashAppStatus>(
+      builder: (context, status, _) {
+        if (status.isLoading) {
+          return MaterialApp(
+            title: 'Zion Auto Diagnosis',
+            theme: ThemeData(
+              // defines the primary color and the accent color
+              primaryColor: ColorUtils.primaryColor,
+              accentColor: ColorUtils.primaryColor,
+            ),
+            debugShowCheckedModeBanner: false,
+            home: SplashPage(), // defines the routes of the application
+          );
+        } else {
+          return Consumer<AppModel>(
+            builder: (context, app, _) {
+              return MaterialApp(
+                title: 'Zion Auto Diagnosis',
+                theme: app.darkTheme
+                    ? ThemeUtils.buildDarkTheme()
+                    : ThemeUtils.buildLightTheme(),
+                debugShowCheckedModeBanner: false,
+                home: page,
+                routes:
+                    Routes.getroutes, // defines the routes of the application
+              );
+            },
+          );
+        }
+      },
     );
   }
 }

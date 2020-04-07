@@ -10,19 +10,7 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         title: Text("First Screen"),
       ),
-      backgroundColor: Colors.indigo,
-      body: Container(
-        child: Center(
-          child: RaisedButton(
-            color: Colors.blue,
-            onPressed: () {},
-            child: Text(
-              "Go to Second Screen",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-      ),
+      body: Container(),
     );
   }
 }

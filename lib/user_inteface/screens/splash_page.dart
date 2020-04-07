@@ -1,13 +1,12 @@
 import 'package:app_settings/app_settings.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:zion/router/router.dart';
+import 'package:provider/provider.dart';
+import 'package:zion/model/app.dart';
 import 'package:zion/user_inteface/components/custom_dialogs.dart';
 import 'package:zion/user_inteface/utils/color_utils.dart';
-import 'package:zion/user_inteface/utils/firebase_utils.dart';
 import 'package:zion/user_inteface/utils/imageUtils.dart';
 
 class SplashPage extends StatefulWidget {
@@ -29,14 +28,7 @@ class _SplashPageState extends State<SplashPage> {
       await Future.delayed(Duration(seconds: 2));
       // calls notifications function
       checkNotificationPermissionStatus();
-      // checks if user has been authenticated
-      // takes user to home page if authenticated else login page
-      FirebaseUser user = await FirebaseUtils.auth.currentUser();
-      String page = Routes.LOGINPAGE;
-      if (user != null) {
-        page = Routes.MYHOMEPAGE;
-      }
-      Router.goToReplacementScreen(context: context, page: page);
+      Provider.of<SplashAppStatus>(context, listen: false).setLoading = false;
     });
   }
 
@@ -57,9 +49,9 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ColorUtils.statusBarColor,
-      body: Center(
+    return Material(
+      color: ColorUtils.statusBarColor,
+      child: Center(
         child: Column(
           children: [
             SizedBox(height: MediaQuery.of(context).size.width * 0.4),

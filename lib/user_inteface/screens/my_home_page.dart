@@ -88,7 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     // assign primary color to the activeColor variable
-    activeColor = Theme.of(context).primaryColor;
+    final appContext = Theme.of(context);
+    activeColor = appContext.bottomAppBarTheme.color;
 
     return PersistentTabView(
       controller: _controller,
@@ -101,10 +102,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ChatPage(),
         SettingsPage(),
       ],
-      showElevation: false,
+      showElevation: true,
       navBarCurve: NavBarCurve.none,
-      backgroundColor: const Color(0xFFEBEEF1),
+      backgroundColor: appContext.bottomAppBarColor,
       iconSize: 26.0,
+
       // Choose the nav bar style with this property
       navBarStyle: NavBarStyle.style6,
       onItemSelected: (index) {

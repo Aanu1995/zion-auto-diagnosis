@@ -5,12 +5,14 @@ class UserProfile {
   final String email;
   final String profileURL;
   final String phoneNumber;
+  final String address;
 
   UserProfile({
     this.name,
     this.email,
     this.profileURL,
     this.phoneNumber,
+    this.address,
   });
 
   factory UserProfile.fromMap({@required Map<String, dynamic> map}) {
@@ -19,6 +21,7 @@ class UserProfile {
       email: map['email'] ?? '',
       profileURL: map['profileURL'] ?? '',
       phoneNumber: map['phone'] ?? '',
+      address: map['address'] ?? '',
     );
   }
 
@@ -28,6 +31,7 @@ class UserProfile {
       'email': user.email.trim() ?? '',
       'profileURL': user.profileURL.trim() ?? '',
       'phone': user.phoneNumber.trim() ?? '',
+      'address': user.address.trim() ?? '',
     };
   }
 }

@@ -8,6 +8,7 @@ class UserProfileService {
         email: "example@gmail.com",
         phoneNumber: '08132363398',
         profileURL: "",
+        address: "my address is in Nigeria",
       );
   // stream of user profile date
   static StreamController<UserProfile> userProfileStreamController =
