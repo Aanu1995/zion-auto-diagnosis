@@ -3,10 +3,10 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:zion/model/app.dart';
-import 'package:zion/model/profile.dart';
 import 'package:zion/service/auth_service.dart';
 import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/user_inteface/components/empty_space.dart';
+import 'package:zion/user_inteface/screens/settings/components.dart';
 import 'package:zion/user_inteface/screens/settings/profile_page.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -61,7 +61,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           onTap: () => pushDynamicScreen(
                             context,
                             screen: MaterialPageRoute(builder: (context) {
-                              return ProfilePage(userProfile: userProfile);
+                              return ProfilePage(
+                                  profileURL: userProfile.profileURL);
                             }),
                             platformSpecific: true,
                             withNavBar: false,
@@ -88,7 +89,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       SettingsTile(
                           title: 'Name',
                           subtitle: userProfile.name,
-                          trailing: Icon(Icons.navigate_next),
                           leading: Icon(Icons.perm_identity)),
                       SettingsTile(
                           title: 'Phone',
@@ -117,12 +117,17 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsSection(
                     title: 'Display',
                     tiles: [
-                      SettingsTile.switchTile(
-                        title: 'Theme',
-                        leading: Icon(Icons.brightness_2),
-                        subtitle: 'Dark',
-                        switchValue: Provider.of<AppModel>(context).darkTheme,
-                        onToggle: (value) => appModel.updateTheme(value),
+                      Selector<AppModel, bool>(
+                        builder: (context, darkTheme, child) {
+                          return SettingsTile.switchTile(
+                            title: 'Theme',
+                            leading: Icon(Icons.brightness_2),
+                            subtitle: 'Dark',
+                            switchValue: darkTheme,
+                            onToggle: (value) => appModel.updateTheme(value),
+                          );
+                        },
+                        selector: (context, model) => model.darkTheme,
                       ),
                       Offstage(),
                     ],
@@ -140,33 +145,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class ProfileStreamData extends StatefulWidget {
-  final Widget Function(BuildContext, AsyncSnapshot<UserProfile>) builder;
-  ProfileStreamData({this.builder});
-
-  @override
-  _ProfileStreamDataState createState() => _ProfileStreamDataState();
-}
-
-class _ProfileStreamDataState extends State<ProfileStreamData> {
-  @override
-  void initState() {
-    super.initState();
-    UserProfileService.fetchUserData();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<UserProfile>(
-      stream: UserProfileService.userProfileStreamController.stream,
-      initialData: UserProfileService.initialData,
-      builder: (context, snapshot) {
-        return widget.builder(context, snapshot);
-      },
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/user_inteface/utils/firebase_utils.dart';
 
@@ -31,7 +32,60 @@ class UserProfileService {
     }
   }
 
+// displose the stream
   static void dispose() {
     userProfileStreamController.close();
+  }
+
+  // upload user profile to the server
+  static Future<String> uploadImage(final imageFile) async {
+    try {
+      // gets userid
+      final user = await FirebaseUtils.auth.currentUser();
+      // sent images to firebase storage
+      final storageReference = FirebaseUtils.storage
+          .ref()
+          .child(FirebaseUtils.profileImages)
+          .child(user.uid)
+          .child("profile.jpg");
+      StorageUploadTask uploadTask = storageReference.putFile(imageFile);
+      await uploadTask.onComplete;
+      final String url = await storageReference.getDownloadURL();
+      if (url != null) {
+        // update the profile url in cloud firestore
+        await FirebaseUtils.firestore
+            .collection(FirebaseUtils.user)
+            .document(user.uid)
+            .updateData({FirebaseUtils.profileURL: url});
+        // calls the function that gets user details data from server
+        UserProfileService.fetchUserData();
+        // return profile url
+        return url;
+      } else {
+        // returns error
+        return FirebaseUtils.error;
+      }
+    } catch (e) {
+      // returns error
+      return FirebaseUtils.error;
+    }
+  }
+
+  static deleteProfileImage() async {
+    try {
+      // gets userid
+      final user = await FirebaseUtils.auth.currentUser();
+      // delete user data from the server
+      await FirebaseUtils.firestore
+          .collection(FirebaseUtils.user)
+          .document(user.uid)
+          .updateData({FirebaseUtils.profileURL: ''});
+      // calls the function that gets user details data from server
+      UserProfileService.fetchUserData();
+      return "";
+    } catch (e) {
+      // returns error
+      return FirebaseUtils.error;
+    }
   }
 }

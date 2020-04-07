@@ -23,8 +23,8 @@ class AppModel with ChangeNotifier {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _darkTheme = theme;
-      await prefs.setBool(GlobalDataUtils.darkTheme, theme);
       notifyListeners();
+      await prefs.setBool(GlobalDataUtils.darkTheme, theme);
     } catch (error) {
       print("theme could not be changed");
     }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:zion/user_inteface/components/empty_space.dart';
+import 'package:zion/user_inteface/screens/settings/components.dart';
 
 class CustomButtomSheets {
   //shows message when the device has no internet connection
@@ -40,5 +42,65 @@ class CustomButtomSheets {
         );
       },
     );
+  }
+
+  // bottom sheets to display options to get images to user
+  static Future<int> imagePickerOptions(BuildContext context) async {
+    int index;
+    await showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          margin: EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          height: 150.0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Profile Photo',
+                style: TextStyle(
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              EmptySpace(multiple: 2.5),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // remove button button
+                  OptionAvartar(
+                      text: "Remove photo",
+                      icon: Icons.delete,
+                      backgroundColor: Colors.orange[800],
+                      onTap: () {
+                        index = 1;
+                        Navigator.pop(context);
+                      }),
+                  // pick from gallery button
+                  OptionAvartar(
+                      text: "Gallery",
+                      icon: Icons.photo,
+                      backgroundColor: Colors.purple,
+                      onTap: () {
+                        index = 2;
+                        Navigator.pop(context);
+                      }),
+                  // use camera button
+                  OptionAvartar(
+                      text: "Camera",
+                      icon: Icons.camera_alt,
+                      backgroundColor: Colors.green,
+                      onTap: () {
+                        index = 3;
+                        Navigator.pop(context);
+                      })
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    return index;
   }
 }

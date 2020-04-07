@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zion/model/app.dart';
@@ -8,7 +9,6 @@ import 'package:zion/user_inteface/components/custom_multiprovider.dart';
 import 'package:zion/user_inteface/screens/authentication/login_page.dart';
 import 'package:zion/user_inteface/screens/my_home_page.dart';
 import 'package:zion/user_inteface/screens/splash_page.dart';
-import 'package:zion/user_inteface/utils/color_utils.dart';
 import 'package:zion/user_inteface/utils/global_data_utils.dart';
 import 'package:zion/user_inteface/utils/theme_utils.dart';
 
@@ -66,16 +66,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     return Consumer<SplashAppStatus>(
       builder: (context, status, _) {
         if (status.isLoading) {
           return MaterialApp(
             title: 'Zion Auto Diagnosis',
-            theme: ThemeData(
-              // defines the primary color and the accent color
-              primaryColor: ColorUtils.primaryColor,
-              accentColor: ColorUtils.primaryColor,
-            ),
             debugShowCheckedModeBanner: false,
             home: SplashPage(), // defines the routes of the application
           );

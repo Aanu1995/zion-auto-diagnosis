@@ -49,34 +49,36 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: ColorUtils.statusBarColor,
-      child: Center(
-        child: Column(
-          children: [
-            SizedBox(height: MediaQuery.of(context).size.width * 0.4),
-            Image.asset(
-              ImageUtils.diagnosisBox,
-              height: 150.0,
-              color: Colors.white,
-              width: double.maxFinite,
-              fit: BoxFit.contain,
-            ),
-            Text(
-              "ZION",
-              style: GoogleFonts.pacifico(
+    return Scaffold(
+      backgroundColor: ColorUtils.statusBarColor,
+      body: Container(
+        child: Center(
+          child: Column(
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.width * 0.4),
+              Image.asset(
+                ImageUtils.diagnosisBox,
+                height: 150.0,
                 color: Colors.white,
-                fontSize: 70.0,
+                width: double.maxFinite,
+                fit: BoxFit.contain,
               ),
-            ),
-            Text(
-              "Auto Diagnosis",
-              style: GoogleFonts.pacifico(
-                color: Colors.white,
-                fontSize: 30.0,
+              Text(
+                "ZION",
+                style: GoogleFonts.pacifico(
+                  color: Colors.white,
+                  fontSize: 70.0,
+                ),
               ),
-            )
-          ],
+              Text(
+                "Auto Diagnosis",
+                style: GoogleFonts.pacifico(
+                  color: Colors.white,
+                  fontSize: 30.0,
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

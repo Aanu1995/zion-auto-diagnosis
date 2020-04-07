@@ -29,9 +29,9 @@ class UserProfile {
     return {
       'name': user.name.trim() ?? '',
       'email': user.email.trim() ?? '',
-      'profileURL': user.profileURL.trim() ?? '',
-      'phone': user.phoneNumber.trim() ?? '',
-      'address': user.address.trim() ?? '',
+      'profileURL': user.profileURL ?? '',
+      'phone': user.phoneNumber ?? '',
+      'address': user.address ?? '',
     };
   }
 }
