@@ -55,7 +55,7 @@ class _SplashPageState extends State<SplashPage> {
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: MediaQuery.of(context).size.width * 0.4),
+              SizedBox(height: MediaQuery.of(context).size.height * 0.18),
               Image.asset(
                 ImageUtils.diagnosisBox,
                 height: 150.0,

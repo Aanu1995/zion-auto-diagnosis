@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zion/model/app.dart';
 import 'package:zion/model/profile.dart';
+import 'package:zion/service/chat_service.dart';
 import 'package:zion/service/notification_service.dart';
 import 'package:zion/user_inteface/screens/authentication/login_page.dart';
 import 'package:zion/user_inteface/utils/exception_utils.dart';
@@ -17,13 +18,19 @@ class AuthService {
     try {
       final result = await FirebaseUtils.auth.createUserWithEmailAndPassword(
           email: user.email, password: password);
+      final userProfile = await UserProfile.toMap(user: user);
       await FirebaseUtils.firestore
           .collection(FirebaseUtils.user)
           .document(result.user.uid)
-          .setData(UserProfile.toMap(user: user));
+          .setData(userProfile);
+      // creates users account for chat
+      ChatServcice.chatWithAdmin(userId: result.user.uid);
+      // sends notification to welcome the user
+      // playerId (One signal notification)
       final playerId = await PushNotificationService.getPlayerId();
       PushNotificationService.sendWelcomeNotification(
           playerId: playerId, username: user.name);
+      // returns success
       return FirebaseUtils.success;
     } catch (e) {
       String error = ExceptionUtils.authenticationException(e);
@@ -34,8 +41,14 @@ class AuthService {
 // login to the app
   static Future<String> login(String email, String password) async {
     try {
-      await FirebaseUtils.auth
+      final result = await FirebaseUtils.auth
           .signInWithEmailAndPassword(email: email, password: password);
+      // playerId (One signal notification)
+      final playerId = await PushNotificationService.getPlayerId();
+      await FirebaseUtils.firestore
+          .collection(FirebaseUtils.user)
+          .document(result.user.uid)
+          .updateData({'notificationId': playerId});
       return FirebaseUtils.success;
     } catch (e) {
       String error = ExceptionUtils.authenticationException(e);

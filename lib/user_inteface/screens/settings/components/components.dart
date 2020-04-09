@@ -100,7 +100,7 @@ class CustomCircleAvatar extends StatelessWidget {
         ? ClipRRect(
             borderRadius: BorderRadius.circular(100.0),
             child: Container(
-              color: Colors.white,
+              color: Colors.grey[300],
               child: SizedBox(
                   height: size,
                   width: size,
@@ -115,7 +115,7 @@ class CustomCircleAvatar extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(1000.0),
                 child: Container(
-                  color: Colors.white,
+                  color: Colors.grey[300],
                   child: SizedBox(
                     height: 150.0,
                     width: 150.0,
