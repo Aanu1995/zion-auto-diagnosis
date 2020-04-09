@@ -3,11 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/user_inteface/components/custom_bottomsheets.dart';
 import 'package:zion/user_inteface/components/custom_dialogs.dart';
-import 'package:zion/user_inteface/screens/settings/components.dart';
 import 'package:data_connection_checker/data_connection_checker.dart';
+import 'package:zion/user_inteface/screens/settings/components/components.dart';
+import 'package:zion/user_inteface/utils/dependency_injection.dart';
 import 'package:zion/user_inteface/utils/firebase_utils.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -23,6 +25,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool isLoading = false;
 
   String profileURL;
+
+  UserProfileService userProfileService;
 
   @override
   void initState() {
@@ -57,6 +61,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    userProfileService = Provider.of<DependecyInjection>(context, listen: false)
+        .userProfileService;
     return Scaffold(
       appBar: AppBar(title: Text('Profile')),
       body: Hero(
@@ -133,7 +139,7 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       isLoading = true;
     });
-    String url = await UserProfileService.deleteProfileImage();
+    String url = await userProfileService.deleteProfileImage();
     if (url != FirebaseUtils.error) {
       profileURL = url;
     } else {
@@ -155,7 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {
         isLoading = true;
       });
-      String url = await UserProfileService.uploadImage(_imageFile);
+      String url = await userProfileService.uploadImage(_imageFile);
       if (url != FirebaseUtils.error) {
         profileURL = url;
       } else {

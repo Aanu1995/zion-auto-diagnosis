@@ -12,6 +12,11 @@ class FirebaseUtils {
   static String get user => 'user';
   static String get profileImages => 'profileImages';
   static String get profileURL => 'profileURL';
+  static String get phone => 'phone';
+  static String get address => 'address';
+
+  // collections and documents for notification
+  static String get notification => 'notification';
 
   // this returns string result to data submitted to backend
   // results could be success or error

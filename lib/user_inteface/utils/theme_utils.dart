@@ -8,7 +8,7 @@ class ThemeUtils {
     return base.copyWith(
       accentColor: Colors.tealAccent,
       bottomAppBarTheme: BottomAppBarTheme(
-        color: Colors.white,
+        color: ColorUtils.darkThemeBlueColor,
       ),
     );
   }

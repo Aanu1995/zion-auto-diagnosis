@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/user_inteface/components/empty_space.dart';
+import 'package:zion/user_inteface/utils/dependency_injection.dart';
 import 'package:zion/user_inteface/utils/imageUtils.dart';
 
 // Stream widget that gets stream from backend to the screen
@@ -15,18 +17,21 @@ class ProfileStreamData extends StatefulWidget {
 }
 
 class _ProfileStreamDataState extends State<ProfileStreamData> {
+  UserProfileService userProfileService;
   @override
   void initState() {
     super.initState();
     // calls the function that gets user details data from server
-    UserProfileService.fetchUserData();
+    userProfileService = Provider.of<DependecyInjection>(context, listen: false)
+        .userProfileService;
+    userProfileService.fetchUserData();
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<UserProfile>(
       // user profile stream
-      stream: UserProfileService.userProfileStreamController.stream,
+      stream: userProfileService.userProfileStreamController.stream,
       // initial data pending the time the data from server is available
       initialData: UserProfileService.initialData,
       builder: (context, snapshot) {

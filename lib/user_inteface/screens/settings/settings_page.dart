@@ -6,8 +6,10 @@ import 'package:zion/model/app.dart';
 import 'package:zion/service/auth_service.dart';
 import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/user_inteface/components/empty_space.dart';
-import 'package:zion/user_inteface/screens/settings/components.dart';
+import 'package:zion/user_inteface/screens/settings/components/components.dart';
+import 'package:zion/user_inteface/screens/settings/components/edit.dart';
 import 'package:zion/user_inteface/screens/settings/profile_page.dart';
+import 'package:zion/user_inteface/utils/dependency_injection.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -15,9 +17,19 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  UserProfileService userProfileService;
+  @override
+  void initState() {
+    super.initState();
+    userProfileService = Provider.of<DependecyInjection>(
+      context,
+      listen: false,
+    ).userProfileService;
+  }
+
   @override
   void dispose() {
-    UserProfileService.dispose();
+    userProfileService.dispose();
     super.dispose();
   }
 
@@ -84,37 +96,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                   SettingsSection(
-                    title: 'Account',
-                    tiles: [
-                      SettingsTile(
-                          title: 'Name',
-                          subtitle: userProfile.name,
-                          leading: Icon(Icons.perm_identity)),
-                      SettingsTile(
-                          title: 'Phone',
-                          subtitle: userProfile.phoneNumber,
-                          trailing: Icon(Icons.navigate_next),
-                          leading: Icon(Icons.phone)),
-                      SettingsTile(
-                        title: 'Email',
-                        subtitle: userProfile.email,
-                        leading: Icon(Icons.email),
-                      ),
-                      SettingsTile(
-                        title: 'Address',
-                        subtitle: userProfile.address,
-                        trailing: Icon(Icons.navigate_next),
-                        leading: Icon(Icons.phone),
-                      ),
-                      SettingsTile(
-                        title: 'Sign out',
-                        leading: Icon(Icons.exit_to_app),
-                        trailing: Icon(Icons.navigate_next),
-                        onTap: () => AuthService.signOut(context),
-                      ),
-                    ],
-                  ),
-                  SettingsSection(
                     title: 'Display',
                     tiles: [
                       Selector<AppModel, bool>(
@@ -133,10 +114,49 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                   SettingsSection(
-                    title: 'Security',
+                    title: 'Account',
                     tiles: [
                       SettingsTile(
-                          title: 'Change Password', leading: Icon(Icons.lock)),
+                          title: 'Name',
+                          subtitle: userProfile.name,
+                          leading: Icon(Icons.perm_identity)),
+                      SettingsTile(
+                        title: 'Phone',
+                        subtitle: userProfile.phoneNumber,
+                        trailing: Icon(Icons.edit),
+                        leading: Icon(Icons.phone),
+                        onTap: () async {
+                          final result =
+                              await editPhone(context, userProfile.phoneNumber);
+                          if (result != null) {
+                            userProfileService.editPhone(result, context);
+                          }
+                        },
+                      ),
+                      SettingsTile(
+                        title: 'Email',
+                        subtitle: userProfile.email,
+                        leading: Icon(Icons.email),
+                      ),
+                      SettingsTile(
+                        title: 'Address',
+                        subtitle: userProfile.address,
+                        trailing: Icon(Icons.edit),
+                        leading: Icon(Icons.location_on),
+                        onTap: () async {
+                          final result =
+                              await editAddress(context, userProfile.address);
+                          if (result != null) {
+                            userProfileService.editAddress(result, context);
+                          }
+                        },
+                      ),
+                      SettingsTile(
+                        title: 'Sign out',
+                        leading: Icon(Icons.exit_to_app),
+                        trailing: Icon(Icons.navigate_next),
+                        onTap: () => AuthService.signOut(context),
+                      ),
                     ],
                   ),
                 ],

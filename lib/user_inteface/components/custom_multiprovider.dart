@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zion/model/app.dart';
+import 'package:zion/user_inteface/utils/dependency_injection.dart';
 
 class CustomMultiprovider extends StatefulWidget {
   final child;
@@ -11,18 +12,19 @@ class CustomMultiprovider extends StatefulWidget {
 }
 
 class _CustomMultiproviderState extends State<CustomMultiprovider> {
+  DependecyInjection _dependecyInjection = DependecyInjection();
   AppModel _appModel = AppModel();
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider(
+          create: (context) => _dependecyInjection,
+        ),
         ChangeNotifierProvider(
           create: (context) => SplashAppStatus(),
         ),
-        ChangeNotifierProvider(
-          create: (context) => _appModel,
-        )
+        ChangeNotifierProvider(create: (context) => _appModel)
       ],
       child: widget.child,
     );
