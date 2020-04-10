@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
 
-class ChatModel {
+class ChatModel extends Equatable {
   final String message;
   final String time;
   final bool isUser;
@@ -9,7 +10,7 @@ class ChatModel {
   final String image;
   final String audio;
 
-  ChatModel({
+  const ChatModel({
     this.message,
     this.time,
     this.isUser = true,
@@ -55,4 +56,7 @@ class ChatModel {
       'time': Timestamp.now(),
     };
   }
+
+  @override
+  List<Object> get props => [message, time, isUser, dateTime, image, audio];
 }

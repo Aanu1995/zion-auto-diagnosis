@@ -1,7 +1,8 @@
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:zion/service/notification_service.dart';
 
-class UserProfile {
+class UserProfile extends Equatable {
   final String name;
   final String email;
   final String profileURL;
@@ -42,4 +43,8 @@ class UserProfile {
       'notificationId': playerId ?? ''
     };
   }
+
+  @override
+  List<Object> get props =>
+      [this.name, email, profileURL, phoneNumber, address, notificationId];
 }

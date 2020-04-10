@@ -46,6 +46,7 @@ class _SettingsPageState extends State<SettingsPage> {
               final userProfile = snapshot.data;
               return SettingsList(
                 sections: [
+                  // profile section
                   SettingsSection(
                     tiles: [
                       Container(
@@ -83,6 +84,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       Offstage(),
                     ],
                   ),
+                  // language
                   SettingsSection(
                     title: 'Common',
                     tiles: [
@@ -94,6 +96,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ],
                   ),
+                  // theme
                   SettingsSection(
                     title: 'Display',
                     tiles: [
@@ -112,13 +115,19 @@ class _SettingsPageState extends State<SettingsPage> {
                       Offstage(),
                     ],
                   ),
+                  // Account section
                   SettingsSection(
                     title: 'Account',
                     tiles: [
+                      // name
                       SettingsTile(
-                          title: 'Name',
-                          subtitle: userProfile.name,
-                          leading: Icon(Icons.perm_identity)),
+                        title: 'Name',
+                        subtitle: userProfile.name,
+                        leading: Icon(
+                          Icons.perm_identity,
+                        ),
+                      ),
+                      // phone
                       SettingsTile(
                         title: 'Phone',
                         subtitle: userProfile.phoneNumber,
@@ -132,11 +141,13 @@ class _SettingsPageState extends State<SettingsPage> {
                           }
                         },
                       ),
+                      //Email
                       SettingsTile(
                         title: 'Email',
                         subtitle: userProfile.email,
                         leading: Icon(Icons.email),
                       ),
+                      // Address
                       SettingsTile(
                         title: 'Address',
                         subtitle: userProfile.address,
@@ -150,6 +161,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           }
                         },
                       ),
+                      // sign out of the app
                       SettingsTile(
                         title: 'Sign out',
                         leading: Icon(Icons.exit_to_app),

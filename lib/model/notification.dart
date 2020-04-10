@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
 import 'package:intl/intl.dart';
 
-class NotificationModel {
+class NotificationModel extends Equatable {
   final String title;
   final String message;
   final String date;
@@ -61,4 +62,8 @@ class NotificationModel {
     );
     return list;
   }
+
+  @override
+  List<Object> get props =>
+      [title, message, date, time, timestamp, read, messageId];
 }
