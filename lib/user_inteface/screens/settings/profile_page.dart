@@ -113,7 +113,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   pickImageFromGallery() async {
-    final image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    final image = await ImagePicker.pickImage(
+        source: ImageSource.gallery, imageQuality: 50);
     if (image != null) {
       final croppedImage = await cropImage(image);
       _imageFile = croppedImage;
@@ -122,7 +123,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   pickImageUsingCamera() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    var image = await ImagePicker.pickImage(
+        source: ImageSource.camera, imageQuality: 50);
     if (image != null) {
       final croppedImage = await cropImage(image);
       _imageFile = croppedImage;

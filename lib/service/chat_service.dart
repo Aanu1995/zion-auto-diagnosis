@@ -1,7 +1,8 @@
 import 'dart:async';
-
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:zion/model/chat.dart';
+import 'package:dash_chat/dash_chat.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/user_inteface/utils/firebase_utils.dart';
 
@@ -44,16 +45,31 @@ class ChatServcice {
     adminProfileStreamController.close();
   }
 
-  static Future<bool> sendMessage({ChatModel chat, String userId}) async {
-    if (chat.message.isNotEmpty) {
-      Firestore.instance
-          .collection(FirebaseUtils.chat)
-          .document(userId)
-          .collection(FirebaseUtils.admin)
-          .document()
-          .setData(ChatModel.toMap(chat: chat));
-      return true;
-    }
-    return false;
+// send input messages to the server
+  static sendMessage({ChatMessage message, String userId}) {
+    final documentReference = Firestore.instance
+        .collection(FirebaseUtils.chat)
+        .document(userId)
+        .collection(FirebaseUtils.admin)
+        .document(DateTime.now().millisecondsSinceEpoch.toString());
+    Firestore.instance.runTransaction((transaction) async {
+      await transaction.set(
+        documentReference,
+        message.toJson(),
+      );
+    });
+  }
+
+// send chat messages to the server
+  static sendImage({File file, ChatUser user, String id}) async {
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('chat_images')
+        .child(DateTime.now().millisecondsSinceEpoch.toString());
+    StorageUploadTask uploadTask = storageRef.putFile(file);
+    await uploadTask.onComplete;
+    final String url = await storageRef.getDownloadURL();
+    ChatMessage message = ChatMessage(text: "", user: user, image: url);
+    sendMessage(message: message, userId: user.uid);
   }
 }

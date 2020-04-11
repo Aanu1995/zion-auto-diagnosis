@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class ChatModel extends Equatable {
   final String message;
   final String time;
-  final bool isUser;
+  final String userId;
   final DateTime dateTime;
   final String image;
   final String audio;
@@ -13,7 +13,7 @@ class ChatModel extends Equatable {
   const ChatModel({
     this.message,
     this.time,
-    this.isUser = true,
+    this.userId,
     this.dateTime,
     this.audio,
     this.image,
@@ -29,7 +29,7 @@ class ChatModel extends Equatable {
       image: map["image"] ?? "",
       audio: map["audio"] ?? "",
       time: correctDate,
-      isUser: map['isUser'] ?? true,
+      userId: map['userId'] ?? '',
       dateTime: date,
     );
   }
@@ -52,11 +52,11 @@ class ChatModel extends Equatable {
       'message': chat.message ?? '',
       'image': chat.image ?? '',
       'audio': chat.audio ?? '',
-      'isUser': chat.isUser,
+      'userId': chat.userId ?? '',
       'time': Timestamp.now(),
     };
   }
 
   @override
-  List<Object> get props => [message, time, isUser, dateTime, image, audio];
+  List<Object> get props => [message, time, userId, dateTime, image, audio];
 }

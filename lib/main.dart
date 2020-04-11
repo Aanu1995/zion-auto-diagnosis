@@ -44,7 +44,6 @@ class _MyAppState extends State<MyApp> {
 
     bool requiresConsent = await OneSignal.shared.requiresUserPrivacyConsent();
     OneSignal.shared.setRequiresUserPrivacyConsent(requiresConsent);
-
     var settings = {
       OSiOSSettings.autoPrompt: false,
       OSiOSSettings.promptBeforeOpeningPushUrl: true

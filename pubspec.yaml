@@ -14,7 +14,6 @@ dependencies:
   google_fonts: ^0.3.9
   persistent_bottom_nav_bar: ^1.2.1
   intl: ^0.16.1
-  bubble: ^1.1.9+1
   data_connection_checker: ^0.3.4
   cached_network_image: ^2.0.0-rc
   fluttertoast: ^4.0.1
@@ -37,6 +36,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  dash_chat:
+    git:
+      url: git://github.com/Aanu1995/dash_chat.git
   settings_ui:
     git:
       url: git://github.com/Aanu1995/flutter-settings-ui.git
