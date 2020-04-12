@@ -99,15 +99,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.3"
-  dash_chat:
-    dependency: "direct dev"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "78fefdd135e320a9a7d0fef7187af9010abe149a"
-      url: "git://github.com/Aanu1995/dash_chat.git"
-    source: git
-    version: "1.0.18"
   data_connection_checker:
     dependency: "direct main"
     description:
@@ -205,7 +196,7 @@ packages:
     source: hosted
     version: "0.2.0"
   flutter_parsed_text:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_parsed_text
       url: "https://pub.dartlang.org"
@@ -523,7 +514,7 @@ packages:
     source: hosted
     version: "0.2.11"
   transparent_image:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: transparent_image
       url: "https://pub.dartlang.org"
@@ -537,7 +528,7 @@ packages:
     source: hosted
     version: "1.1.6"
   uuid:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: uuid
       url: "https://pub.dartlang.org"

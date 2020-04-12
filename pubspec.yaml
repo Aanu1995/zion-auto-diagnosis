@@ -26,6 +26,9 @@ dependencies:
 
   provider: ^4.0.1
   equatable: ^1.1.1
+  flutter_parsed_text: ^1.1.0
+  uuid: ^2.0.1
+  transparent_image: ^1.0.0
 
   firebase_auth: ^0.15.5+2
   cloud_firestore: ^0.13.4+2
@@ -36,9 +39,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  dash_chat:
-    git:
-      url: git://github.com/Aanu1995/dash_chat.git
   settings_ui:
     git:
       url: git://github.com/Aanu1995/flutter-settings-ui.git

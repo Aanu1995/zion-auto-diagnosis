@@ -7,10 +7,10 @@ import 'package:zion/model/app.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/service/notification_service.dart';
-import 'package:zion/user_inteface/screens/authentication/login_page.dart';
-import 'package:zion/user_inteface/utils/exception_utils.dart';
-import 'package:zion/user_inteface/utils/firebase_utils.dart';
-import 'package:zion/user_inteface/utils/global_data_utils.dart';
+import 'package:zion/views/screens/authentication/login_page.dart';
+import 'package:zion/views/utils/exception_utils.dart';
+import 'package:zion/views/utils/firebase_utils.dart';
+import 'package:zion/views/utils/global_data_utils.dart';
 
 class AuthService {
   // Create Account

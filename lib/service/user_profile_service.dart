@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:zion/model/profile.dart';
-import 'package:zion/user_inteface/components/custom_dialogs.dart';
-import 'package:zion/user_inteface/utils/firebase_utils.dart';
+import 'package:zion/views/components/custom_dialogs.dart';
+import 'package:zion/views/utils/firebase_utils.dart';
 
 class UserProfileService {
   static get initialData => UserProfile(
