@@ -10,6 +10,7 @@ class UserProfile extends Equatable {
   final String address;
   final String notificationId;
   final bool online;
+  final DateTime lastActive;
 
   UserProfile({
     this.name,
@@ -18,10 +19,15 @@ class UserProfile extends Equatable {
     this.phoneNumber,
     this.address,
     this.online = true,
+    this.lastActive,
     this.notificationId,
   });
 
   factory UserProfile.fromMap({@required Map<String, dynamic> map}) {
+    DateTime dateTime;
+    if (map['lastActive'] != null) {
+      dateTime = DateTime.fromMillisecondsSinceEpoch(map['lastActive']);
+    }
     return UserProfile(
       name: map['name'] ?? '',
       email: map['email'] ?? '',
@@ -29,6 +35,7 @@ class UserProfile extends Equatable {
       phoneNumber: map['phone'] ?? '',
       address: map['address'] ?? '',
       online: map['online'],
+      lastActive: dateTime ?? DateTime.now(),
       notificationId: map['notificationId'],
     );
   }

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:zion/model/profile.dart';
 import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 
@@ -16,33 +15,6 @@ class ChatServcice {
     } catch (e) {
       print(e);
     }
-  }
-
-  // stream of user profile date
-  StreamController<UserProfile> adminProfileStreamController =
-      StreamController.broadcast();
-
-  // fetch user data from the server
-  void fetchAdminData() async {
-    try {
-      final querySnapshot = await FirebaseUtils.firestore
-          .collection(FirebaseUtils.admin)
-          .getDocuments();
-      if (querySnapshot != null) {
-        print('hello');
-        final userProfile = UserProfile.fromMap(
-          map: querySnapshot.documents[0].data,
-        );
-        adminProfileStreamController.add(userProfile); // add data to stream
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-// displose the stream
-  void dispose() {
-    adminProfileStreamController.close();
   }
 
 // send input messages to the server

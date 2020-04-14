@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/utils/utils.dart';
@@ -27,14 +28,8 @@ class _ChatPageState extends State<ChatPage> {
       context,
       listen: false,
     ).chatServcice;
-    chatServcice.fetchAdminData();
-    getUserId();
-  }
 
-  @override
-  void dispose() {
-    chatServcice.dispose();
-    super.dispose();
+    getUserId();
   }
 
   void getUserId() async {
@@ -49,11 +44,15 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Container(
         margin: EdgeInsets.symmetric(vertical: 16.0),
-        child: StreamBuilder<UserProfile>(
-          stream: chatServcice.adminProfileStreamController.stream,
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseUtils.firestore
+              .collection(FirebaseUtils.admin)
+              .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              final userProfile = snapshot.data;
+              final userProfile = UserProfile.fromMap(
+                map: snapshot.data.documents[0].data,
+              );
               // displays the admin profile in the chat
               return ListTile(
                 leading: Stack(
