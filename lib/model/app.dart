@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zion/user_inteface/utils/global_data_utils.dart';
+import 'package:zion/views/utils/global_data_utils.dart';
 
 class AppModel with ChangeNotifier {
   // gets app config from the local storage when app is opened

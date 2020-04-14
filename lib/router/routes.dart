@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:zion/user_inteface/screens/authentication/login_page.dart';
-import 'package:zion/user_inteface/screens/authentication/signup_page.dart';
-import 'package:zion/user_inteface/screens/my_home_page.dart';
-import 'package:zion/user_inteface/screens/settings/profile_page.dart';
+import 'package:zion/views/screens/authentication/login_page.dart';
+import 'package:zion/views/screens/authentication/signup_page.dart';
+import 'package:zion/views/screens/my_home_page.dart';
+import 'package:zion/views/screens/settings/profile_page.dart';
 
 class Routes {
   static const String LOGINPAGE = '/login';

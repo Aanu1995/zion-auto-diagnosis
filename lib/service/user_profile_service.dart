@@ -1,8 +1,9 @@
 import 'dart:async';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:zion/model/profile.dart';
-import 'package:zion/user_inteface/components/custom_dialogs.dart';
-import 'package:zion/user_inteface/utils/firebase_utils.dart';
+import 'package:zion/views/components/custom_dialogs.dart';
+import 'package:zion/views/utils/firebase_utils.dart';
 
 class UserProfileService {
   static get initialData => UserProfile(
@@ -124,6 +125,27 @@ class UserProfileService {
     } catch (e) {
       // returns error
       CustomDialogs.showErroDialog(context, FirebaseUtils.error);
+    }
+  }
+
+  static setOnlineStatus() async {
+    try {
+      // gets userid
+      final user = await FirebaseUtils.auth.currentUser();
+      if (user != null) {
+        FirebaseDatabase.instance
+            .reference()
+            .child("/status/" + user.uid)
+            .onDisconnect()
+            .set("offline");
+
+        FirebaseDatabase.instance
+            .reference()
+            .child("/status/" + user.uid)
+            .set("online");
+      }
+    } catch (e) {
+      print(e);
     }
   }
 }

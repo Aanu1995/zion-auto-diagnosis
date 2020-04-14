@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:zion/model/notification.dart';
-import 'package:zion/user_inteface/utils/firebase_utils.dart';
+import 'package:zion/views/utils/firebase_utils.dart';
 
 class PushNotificationService {
   static Future<String> getPlayerId() async {

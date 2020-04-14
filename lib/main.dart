@@ -5,12 +5,12 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zion/model/app.dart';
 import 'package:zion/router/router.dart';
-import 'package:zion/user_inteface/components/custom_multiprovider.dart';
-import 'package:zion/user_inteface/screens/authentication/login_page.dart';
-import 'package:zion/user_inteface/screens/my_home_page.dart';
-import 'package:zion/user_inteface/screens/splash_page.dart';
-import 'package:zion/user_inteface/utils/global_data_utils.dart';
-import 'package:zion/user_inteface/utils/theme_utils.dart';
+import 'package:zion/views/components/custom_multiprovider.dart';
+import 'package:zion/views/screens/authentication/login_page.dart';
+import 'package:zion/views/screens/my_home_page.dart';
+import 'package:zion/views/screens/splash_page.dart';
+import 'package:zion/views/utils/global_data_utils.dart';
+import 'package:zion/views/utils/theme_utils.dart';
 
 // our application starts running here
 void main() {
@@ -44,7 +44,6 @@ class _MyAppState extends State<MyApp> {
 
     bool requiresConsent = await OneSignal.shared.requiresUserPrivacyConsent();
     OneSignal.shared.setRequiresUserPrivacyConsent(requiresConsent);
-
     var settings = {
       OSiOSSettings.autoPrompt: false,
       OSiOSSettings.promptBeforeOpeningPushUrl: true
