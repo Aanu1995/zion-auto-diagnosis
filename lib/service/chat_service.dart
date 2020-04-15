@@ -45,7 +45,12 @@ class ChatServcice {
   }
 
 // send chat messages to the server
-  static sendImage({File file, ChatUser user, String id}) async {
+  static Future<bool> sendImage(
+      {File file,
+      ChatUser user,
+      String id,
+      int messageStatus,
+      String text = ''}) async {
     try {
       final storageRef = FirebaseStorage.instance
           .ref()
@@ -54,10 +59,13 @@ class ChatServcice {
       StorageUploadTask uploadTask = storageRef.putFile(file);
       await uploadTask.onComplete;
       final String url = await storageRef.getDownloadURL();
-      ChatMessage message =
-          ChatMessage(text: "", user: user, image: url, messageStatus: 0);
+      ChatMessage message = ChatMessage(
+          text: text, user: user, image: url, messageStatus: messageStatus);
       sendMessage(message: message, userId: user.uid);
-    } catch (e) {}
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   // load more messages for the chat

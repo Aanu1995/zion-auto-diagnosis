@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:connectivity/connectivity.dart';
+import 'package:zion/service/user_profile_service.dart';
 
 enum ConnectivityStatus { WiFi, Cellular, Offline }
 
@@ -30,6 +31,7 @@ class ConnectivityService {
         status = false;
         break;
     }
+    if (status) UserProfileService.setUserOnline();
     return status;
   }
 }

@@ -84,6 +84,13 @@ class MessageContainer extends StatelessWidget {
                     ),
                   ),
                 ),
+              if (message.image != null || message.imageFile != null)
+                if (messageImageBuilder != null)
+                  Container(
+                    padding: EdgeInsets.only(bottom: 8.0),
+                    child:
+                        messageImageBuilder(message.image, message.imageFile),
+                  ),
               if (message.text.isNotEmpty && message.text != null)
                 ParsedText(
                   parse: parsePatterns,
@@ -93,9 +100,6 @@ class MessageContainer extends StatelessWidget {
                     color: Colors.black87,
                   ),
                 ),
-              if (message.image != null || message.imageFile != null)
-                if (messageImageBuilder != null)
-                  messageImageBuilder(message.image, message.imageFile),
               isUser
                   ? FittedBox(
                       child: Row(

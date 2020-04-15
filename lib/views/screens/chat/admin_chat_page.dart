@@ -86,6 +86,7 @@ class _AdminChatPageState extends State<AdminChatPage> {
                   items.map((i) => ChatMessage.fromJson(i.data)).toList();
               return ZionChat(
                 chatKey: _chatViewKey,
+                online: widget.profile.online,
                 messages: messages,
                 lastDocumentSnapshot:
                     items.length != 0 ? items[items.length - 1] : null,

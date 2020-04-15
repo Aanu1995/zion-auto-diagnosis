@@ -148,4 +148,19 @@ class UserProfileService {
       print(e);
     }
   }
+
+  static setUserOnline() async {
+    try {
+      // gets userid
+      final user = await FirebaseUtils.auth.currentUser();
+      if (user != null) {
+        await FirebaseUtils.firestore
+            .collection(FirebaseUtils.user)
+            .document(user.uid)
+            .updateData({'online': true});
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 }

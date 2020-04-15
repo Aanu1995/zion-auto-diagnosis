@@ -5,16 +5,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/screens/chat/components/full_image.dart';
 import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
+import 'package:zion/views/screens/chat/components/image_pick_preview_page.dart';
 
 class ZionChat extends StatefulWidget {
   final chatKey;
   List<ChatMessage> messages;
+  final bool online;
   DocumentSnapshot lastDocumentSnapshot;
   final ChatUser user;
-  ZionChat({this.chatKey, this.messages, this.user, this.lastDocumentSnapshot});
+  ZionChat(
+      {this.chatKey,
+      this.messages,
+      this.user,
+      this.lastDocumentSnapshot,
+      this.online});
 
   @override
   _ZionChatState createState() => _ZionChatState();
@@ -25,10 +33,12 @@ class _ZionChatState extends State<ZionChat> {
   //checks if the loadmore button as been clicked
   // displays loading indicator if true
   bool isLoadingMore = false;
+  List<ChatMessage> falseMessages = [];
 
   @override
   Widget build(BuildContext context) {
-    messages = widget.messages;
+    messages = [...falseMessages, ...widget.messages];
+    // set false images to null
     // checks if the messages has been seen
     messages.forEach((chat) {
       if (chat.messageStatus >= 0 && chat.user.uid != widget.user.uid) {
@@ -41,7 +51,6 @@ class _ZionChatState extends State<ZionChat> {
         }
       }
     });
-    print(messages.length);
     return ZionMessageChat(
       key: widget.chatKey,
       onSend: onSend,
@@ -100,26 +109,42 @@ class _ZionChatState extends State<ZionChat> {
   }
 
 // send chat messages (text)
-  void onSend(final message) {
-    ChatServcice.sendMessage(message: message, userId: widget.user.uid);
+  void onSend(ChatMessage message) {
+    final mess = message;
+    mess.messageStatus =
+        widget.online ? 1 : 0; // checks whether messages will be delivered
+    ChatServcice.sendMessage(message: mess, userId: widget.user.uid);
   }
 
 // send chat images to the server
   void onSendImage() async {
-    // send images picked during chat to the server
+    //pick images from the gallery
     File result = await ImagePicker.pickImage(
         source: ImageSource.gallery, imageQuality: 50);
     if (result != null) {
-      ChatMessage message = ChatMessage(
-        text: "",
-        messageStatus: -1,
-        user: widget.user,
-        imageFile: result,
-      );
-      widget.messages = [message, ...widget.messages];
-      setState(() {});
-      ChatServcice.sendImage(
-          file: result, user: widget.user, id: widget.user.uid);
+      // navigate to screen to preview image and add a caption to the image
+      final text = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => ImagePickPreviewPage(image: result),
+      ));
+      if (text != null) {
+        ChatMessage message = ChatMessage(
+          text: text,
+          messageStatus: -1,
+          user: widget.user,
+          imageFile: result,
+        );
+        falseMessages.add(message);
+        setState(() {});
+        await ChatServcice.sendImage(
+          file: result,
+          text: text,
+          user: widget.user,
+          id: widget.user.uid,
+          messageStatus: widget.online ? 1 : 0,
+        );
+        // empty the false messages
+        falseMessages.clear();
+      }
     }
   }
 
