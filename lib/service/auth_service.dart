@@ -18,11 +18,11 @@ class AuthService {
     try {
       final result = await FirebaseUtils.auth.createUserWithEmailAndPassword(
           email: user.email, password: password);
-      final userProfile = await UserProfile.toMap(user: user);
+      final lastSeen = DateTime.now().millisecondsSinceEpoch;
       await FirebaseUtils.firestore
           .collection(FirebaseUtils.user)
           .document(result.user.uid)
-          .setData(userProfile);
+          .setData({result.user.uid: lastSeen});
       // creates users account for chat
       ChatServcice.chatWithAdmin(userId: result.user.uid);
       // sends notification to welcome the user

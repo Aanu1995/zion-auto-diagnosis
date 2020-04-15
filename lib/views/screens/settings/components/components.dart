@@ -92,7 +92,7 @@ class CustomCircleAvatar extends StatelessWidget {
   final double size;
   final void Function() onPressed;
 
-  CustomCircleAvatar({this.profileURL, this.size, this.onPressed});
+  const CustomCircleAvatar({this.profileURL, this.size, this.onPressed});
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).accentColor;

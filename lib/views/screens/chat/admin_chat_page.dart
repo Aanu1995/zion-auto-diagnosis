@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:zion/model/profile.dart';
+import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/components/empty_space.dart';
 import 'package:zion/views/screens/chat/components/zion_chat.dart';
 import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
@@ -12,10 +13,10 @@ import 'package:timeago/timeago.dart' as timeago;
 
 class AdminChatPage extends StatefulWidget {
   final String userId;
-  final UserProfile profile;
-  AdminChatPage({
+  final UserProfile responderProfile;
+  const AdminChatPage({
     this.userId,
-    this.profile,
+    this.responderProfile,
   });
 
   @override
@@ -31,7 +32,8 @@ class _AdminChatPageState extends State<AdminChatPage> {
   @override
   void initState() {
     super.initState();
-    final result = DateTime.now().difference(widget.profile.lastActive);
+    final result =
+        DateTime.now().difference(widget.responderProfile.lastActive);
     lastActive = timeago.format(DateTime.now().subtract(result));
   }
 
@@ -43,7 +45,7 @@ class _AdminChatPageState extends State<AdminChatPage> {
           children: [
             CustomCircleAvatar(
               size: 40.0,
-              profileURL: widget.profile.profileURL,
+              profileURL: widget.responderProfile.profileURL,
             ),
             EmptySpace(horizontal: true, multiple: 1.5),
             Column(
@@ -51,11 +53,13 @@ class _AdminChatPageState extends State<AdminChatPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.profile.name,
+                  widget.responderProfile.name,
                   style: GoogleFonts.abel(fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  widget.profile.online ? 'Online' : 'Last seen: $lastActive',
+                  widget.responderProfile.online
+                      ? 'Online'
+                      : 'Last seen: $lastActive',
                   style: GoogleFonts.abel(
                     fontWeight: FontWeight.bold,
                     fontSize: 12.0,
@@ -84,9 +88,11 @@ class _AdminChatPageState extends State<AdminChatPage> {
               List<DocumentSnapshot> items = snapshot.data.documents;
               final messages =
                   items.map((i) => ChatMessage.fromJson(i.data)).toList();
+              // send last seen of the user in the chat to the server
+              ChatServcice.updateLastSeen(widget.userId, widget.userId);
               return ZionChat(
                 chatKey: _chatViewKey,
-                online: widget.profile.online,
+                online: widget.responderProfile.online,
                 messages: messages,
                 lastDocumentSnapshot:
                     items.length != 0 ? items[items.length - 1] : null,

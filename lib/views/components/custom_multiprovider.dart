@@ -23,6 +23,9 @@ class _CustomMultiproviderState extends State<CustomMultiprovider> {
         Provider(
           create: (context) => _dependecyInjection,
         ),
+        Provider(
+          create: (context) => User(),
+        ),
         ChangeNotifierProvider(
           create: (context) => SplashAppStatus(),
         ),

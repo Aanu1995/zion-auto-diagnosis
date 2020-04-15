@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zion/views/utils/global_data_utils.dart';
@@ -46,4 +47,16 @@ class SplashAppStatus with ChangeNotifier {
 
 // getter
   bool get isLoading => _isLoading;
+}
+
+class User {
+  FirebaseUser _user;
+  FirebaseUser get user => _user;
+  User() {
+    getUser();
+  }
+
+  void getUser() async {
+    _user = await FirebaseAuth.instance.currentUser();
+  }
 }

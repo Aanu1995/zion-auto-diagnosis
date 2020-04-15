@@ -38,7 +38,6 @@ class _ZionChatState extends State<ZionChat> {
   @override
   Widget build(BuildContext context) {
     messages = [...falseMessages, ...widget.messages];
-    // set false images to null
     // checks if the messages has been seen
     messages.forEach((chat) {
       if (chat.messageStatus >= 0 && chat.user.uid != widget.user.uid) {

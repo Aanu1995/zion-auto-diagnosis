@@ -18,17 +18,19 @@ class ChatServcice {
   }
 
 // send input messages to the server
-  static sendMessage({ChatMessage message, String userId}) {
+  static sendMessage({ChatMessage message, String userId}) async {
     final createdAt = DateTime.now().millisecondsSinceEpoch;
     try {
-      Firestore.instance
-          .collection(FirebaseUtils.chat)
-          .document(userId)
+      final documentSnapshot =
+          Firestore.instance.collection(FirebaseUtils.chat).document(userId);
+
+      await documentSnapshot
           .collection(FirebaseUtils.admin)
           .document(createdAt.toString())
           .setData(
             message.toJson(createdAt),
           );
+      await documentSnapshot.updateData({'time': createdAt});
     } catch (e) {}
   }
 
@@ -87,5 +89,16 @@ class ChatServcice {
       }
     } catch (e) {}
     return list;
+  }
+
+  // send last seen of the user to the server
+  static void updateLastSeen(String userId, String documentId) {
+    final lastSeen = DateTime.now().millisecondsSinceEpoch;
+    try {
+      Firestore.instance
+          .collection(FirebaseUtils.chat)
+          .document(documentId)
+          .updateData({userId: lastSeen});
+    } catch (e) {}
   }
 }

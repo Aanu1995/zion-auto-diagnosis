@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:provider/provider.dart';
+import 'package:zion/model/app.dart';
 import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/views/screens/chat/chat_page.dart';
 import 'package:zion/views/screens/home/home_page.dart';
@@ -54,6 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
         });
       }
     });
+    // initialize
+    Provider.of<User>(context, listen: false).getUser();
   }
 
 // list of bottom navigation bar items
