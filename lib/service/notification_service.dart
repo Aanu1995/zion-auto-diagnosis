@@ -11,12 +11,12 @@ class PushNotificationService {
     return playerId;
   }
 
-  static void sendWelcomeNotification(
-      {String playerId, String username}) async {
+  static void sendNotification(
+      {String playerId, String title, String content}) async {
     var notification = OSCreateNotification(
       playerIds: [playerId],
-      content: "We all at Zion are glad you are using the app",
-      heading: "WELCOME ${username.toUpperCase()}",
+      content: content,
+      heading: title,
       androidSmallIcon: 'ic_stat_one_signal_default',
       additionalData: <String, dynamic>{"screen": "/notificationpage"},
     );

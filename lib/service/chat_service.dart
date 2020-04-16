@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:zion/service/notification_service.dart';
 import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 
@@ -18,7 +19,8 @@ class ChatServcice {
   }
 
 // send input messages to the server
-  static sendMessage({ChatMessage message, String userId}) async {
+  static sendMessage(
+      {ChatMessage message, String userId, String playerId}) async {
     final createdAt = DateTime.now().millisecondsSinceEpoch;
     try {
       final documentSnapshot =
@@ -31,6 +33,13 @@ class ChatServcice {
             message.toJson(createdAt),
           );
       await documentSnapshot.updateData({'time': createdAt});
+      if (message.messageStatus == 1) {
+        PushNotificationService.sendNotification(
+          playerId: playerId,
+          title: '',
+          content: message.text,
+        );
+      }
     } catch (e) {}
   }
 
@@ -52,6 +61,7 @@ class ChatServcice {
       ChatUser user,
       String id,
       int messageStatus,
+      String playerId,
       String text = ''}) async {
     try {
       final storageRef = FirebaseStorage.instance
@@ -63,7 +73,7 @@ class ChatServcice {
       final String url = await storageRef.getDownloadURL();
       ChatMessage message = ChatMessage(
           text: text, user: user, image: url, messageStatus: messageStatus);
-      sendMessage(message: message, userId: user.uid);
+      sendMessage(message: message, userId: user.uid, playerId: playerId);
       return true;
     } catch (e) {
       return false;
@@ -100,5 +110,12 @@ class ChatServcice {
           .document(documentId)
           .updateData({userId: lastSeen});
     } catch (e) {}
+  }
+
+  // checks if user is typing
+  static void isTyping(String chatId, {String userId}) {
+    Firestore.instance.collection('Typing').document(chatId).setData(
+      {'typing': userId ?? ""},
+    );
   }
 }

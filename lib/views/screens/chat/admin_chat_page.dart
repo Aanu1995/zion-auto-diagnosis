@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:zion/model/profile.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/components/empty_space.dart';
@@ -37,6 +36,38 @@ class _AdminChatPageState extends State<AdminChatPage> {
     lastActive = timeago.format(DateTime.now().subtract(result));
   }
 
+  Widget userTyping() {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: Firestore.instance
+          .collection('Typing')
+          .document(widget.userId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          String isTyping = snapshot.data.data['typing'];
+          if (isTyping != null &&
+              isTyping.isNotEmpty &&
+              isTyping != widget.userId) {
+            return Text(
+              'Typing',
+              style: GoogleFonts.abel(
+                fontWeight: FontWeight.bold,
+                fontSize: 12.0,
+              ),
+            );
+          }
+        }
+        return Text(
+          widget.responderProfile.online ? 'Online' : 'Last seen: $lastActive',
+          style: GoogleFonts.abel(
+            fontWeight: FontWeight.bold,
+            fontSize: 12.0,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,15 +87,7 @@ class _AdminChatPageState extends State<AdminChatPage> {
                   widget.responderProfile.name,
                   style: GoogleFonts.abel(fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  widget.responderProfile.online
-                      ? 'Online'
-                      : 'Last seen: $lastActive',
-                  style: GoogleFonts.abel(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12.0,
-                  ),
-                ),
+                userTyping(),
               ],
             )
           ],
@@ -97,6 +120,7 @@ class _AdminChatPageState extends State<AdminChatPage> {
                 lastDocumentSnapshot:
                     items.length != 0 ? items[items.length - 1] : null,
                 user: ChatUser(uid: widget.userId),
+                responderProfile: widget.responderProfile,
               );
             }
             return Container();

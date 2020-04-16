@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:data_connection_checker/data_connection_checker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:zion/model/profile.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/screens/chat/components/full_image.dart';
 import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
@@ -13,15 +16,17 @@ import 'package:zion/views/screens/chat/components/image_pick_preview_page.dart'
 
 class ZionChat extends StatefulWidget {
   final chatKey;
-  List<ChatMessage> messages;
+  final List<ChatMessage> messages;
   final bool online;
-  DocumentSnapshot lastDocumentSnapshot;
+  final DocumentSnapshot lastDocumentSnapshot;
   final ChatUser user;
+  final UserProfile responderProfile;
   ZionChat(
       {this.chatKey,
       this.messages,
       this.user,
       this.lastDocumentSnapshot,
+      this.responderProfile,
       this.online});
 
   @override
@@ -34,9 +39,34 @@ class _ZionChatState extends State<ZionChat> {
   // displays loading indicator if true
   bool isLoadingMore = false;
   List<ChatMessage> falseMessages = [];
+  DocumentSnapshot lastDoc;
+
+  @override
+  void initState() {
+    super.initState();
+    // checks if user is typing
+    // send notification to the server if typing
+    // and stop typing
+    KeyboardVisibilityNotification().addNewListener(
+      onChange: (bool visible) async {
+        bool connect = await DataConnectionChecker().hasConnection;
+        if (connect) {
+          if (visible) {
+            ChatServcice.isTyping(
+              widget.user.uid,
+              userId: widget.user.uid,
+            );
+          } else {
+            ChatServcice.isTyping(widget.user.uid);
+          }
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    lastDoc = widget.lastDocumentSnapshot;
     messages = [...falseMessages, ...widget.messages];
     // checks if the messages has been seen
     messages.forEach((chat) {
@@ -112,7 +142,11 @@ class _ZionChatState extends State<ZionChat> {
     final mess = message;
     mess.messageStatus =
         widget.online ? 1 : 0; // checks whether messages will be delivered
-    ChatServcice.sendMessage(message: mess, userId: widget.user.uid);
+    ChatServcice.sendMessage(
+      message: mess,
+      userId: widget.user.uid,
+      playerId: widget.responderProfile.notificationId,
+    );
   }
 
 // send chat images to the server
@@ -140,6 +174,7 @@ class _ZionChatState extends State<ZionChat> {
           user: widget.user,
           id: widget.user.uid,
           messageStatus: widget.online ? 1 : 0,
+          playerId: widget.responderProfile.notificationId,
         );
         // empty the false messages
         falseMessages.clear();
@@ -153,10 +188,10 @@ class _ZionChatState extends State<ZionChat> {
       isLoadingMore = true;
       setState(() {});
     });
-    List<DocumentSnapshot> result = await ChatServcice.loadMoreMessages(
-        widget.user.uid, widget.lastDocumentSnapshot);
+    List<DocumentSnapshot> result =
+        await ChatServcice.loadMoreMessages(widget.user.uid, lastDoc);
     if (result.isNotEmpty) {
-      widget.lastDocumentSnapshot = result[result.length - 1];
+      lastDoc = result[result.length - 1];
       final newMessages =
           result.map((i) => ChatMessage.fromJson(i.data)).toList();
       widget.messages.addAll(newMessages);

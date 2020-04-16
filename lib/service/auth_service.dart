@@ -25,11 +25,6 @@ class AuthService {
           .setData({result.user.uid: lastSeen});
       // creates users account for chat
       ChatServcice.chatWithAdmin(userId: result.user.uid);
-      // sends notification to welcome the user
-      // playerId (One signal notification)
-      final playerId = await PushNotificationService.getPlayerId();
-      PushNotificationService.sendWelcomeNotification(
-          playerId: playerId, username: user.name);
       // returns success
       return FirebaseUtils.success;
     } catch (e) {
