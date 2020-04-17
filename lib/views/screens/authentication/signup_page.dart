@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/router/router.dart';
 import 'package:zion/service/auth_service.dart';
+import 'package:zion/service/notification_service.dart';
 import 'package:zion/views/components/custom_bottomsheets.dart';
 import 'package:zion/views/components/custom_dialogs.dart';
 import 'package:zion/views/components/empty_space.dart';
@@ -140,6 +141,8 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
   InputDecoration decoration2(String labelText, IconData icon) {
     return InputDecoration(
       labelText: labelText,
+      fillColor: Theme.of(context).accentColor.withOpacity(0.1),
+      filled: true,
       labelStyle: TextStyle(
         fontSize: 15.0,
       ),
@@ -155,6 +158,8 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
       {bool obscureText, Function() onTap}) {
     return InputDecoration(
       labelText: labelText,
+      fillColor: Theme.of(context).accentColor.withOpacity(0.1),
+      filled: true,
       labelStyle: TextStyle(
         fontSize: 15.0,
       ),
@@ -289,10 +294,12 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
       setState(() {
         isCreatingAccount = true;
       });
+      final playerId = await PushNotificationService.getPlayerId();
       final user = UserProfile(
         name: _nameController.text.toString(),
         email: _emailController.text.toString(),
         phoneNumber: _phoneController.text.toString(),
+        notificationId: playerId,
       );
       // calls the create account function
       String result = await AuthService.createAccount(

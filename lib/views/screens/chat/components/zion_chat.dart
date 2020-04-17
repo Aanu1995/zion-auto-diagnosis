@@ -8,6 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/screens/chat/components/full_image.dart';
@@ -18,7 +19,7 @@ class ZionChat extends StatefulWidget {
   final chatKey;
   final List<ChatMessage> messages;
   final bool online;
-  final DocumentSnapshot lastDocumentSnapshot;
+  DocumentSnapshot lastDocumentSnapshot;
   final ChatUser user;
   final UserProfile responderProfile;
   ZionChat(
@@ -39,7 +40,6 @@ class _ZionChatState extends State<ZionChat> {
   // displays loading indicator if true
   bool isLoadingMore = false;
   List<ChatMessage> falseMessages = [];
-  DocumentSnapshot lastDoc;
 
   @override
   void initState() {
@@ -66,7 +66,6 @@ class _ZionChatState extends State<ZionChat> {
 
   @override
   Widget build(BuildContext context) {
-    lastDoc = widget.lastDocumentSnapshot;
     messages = [...falseMessages, ...widget.messages];
     // checks if the messages has been seen
     messages.forEach((chat) {
@@ -95,21 +94,23 @@ class _ZionChatState extends State<ZionChat> {
                 tag: image,
                 child: Material(
                   child: InkWell(
-                    child: CachedNetworkImage(
-                      imageUrl: image,
+                    child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.3,
                       width: MediaQuery.of(context).size.width * 0.8,
-                      fit: BoxFit.fitWidth,
-                      placeholder: (context, value) {
-                        return Center(
-                          child: SizedBox(
-                              height: 25.0,
-                              width: 25.0,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.0,
-                              )),
-                        );
-                      },
+                      child: CachedNetworkImage(
+                        imageUrl: image,
+                        fit: BoxFit.fitWidth,
+                        placeholder: (context, value) {
+                          return Shimmer.fromColors(
+                            child: Container(
+                              height: double.maxFinite,
+                              width: double.maxFinite,
+                            ),
+                            baseColor: Colors.grey[300],
+                            highlightColor: Colors.grey[100],
+                          );
+                        },
+                      ),
                     ),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -188,10 +189,10 @@ class _ZionChatState extends State<ZionChat> {
       isLoadingMore = true;
       setState(() {});
     });
-    List<DocumentSnapshot> result =
-        await ChatServcice.loadMoreMessages(widget.user.uid, lastDoc);
+    List<DocumentSnapshot> result = await ChatServcice.loadMoreMessages(
+        widget.user.uid, widget.lastDocumentSnapshot);
     if (result.isNotEmpty) {
-      lastDoc = result[result.length - 1];
+      widget.lastDocumentSnapshot = result[result.length - 1];
       final newMessages =
           result.map((i) => ChatMessage.fromJson(i.data)).toList();
       widget.messages.addAll(newMessages);

@@ -116,6 +116,8 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
   InputDecoration decoration2(String labelText, IconData icon) {
     return InputDecoration(
       labelText: labelText,
+      filled: true,
+      fillColor: Theme.of(context).accentColor.withOpacity(0.1),
       labelStyle: TextStyle(
         fontSize: 15.0,
       ),
@@ -131,6 +133,8 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
       {bool obscureText, Function() onTap}) {
     return InputDecoration(
       labelText: labelText,
+      fillColor: Theme.of(context).accentColor.withOpacity(0.1),
+      filled: true,
       labelStyle: TextStyle(
         fontSize: 15.0,
       ),

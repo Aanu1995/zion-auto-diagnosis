@@ -8,11 +8,16 @@ import 'package:zion/views/utils/firebase_utils.dart';
 
 class ChatServcice {
   static void chatWithAdmin({String userId}) async {
+    final lastSeen = DateTime.now().millisecondsSinceEpoch;
     try {
-      Firestore.instance
+      await Firestore.instance
           .collection(FirebaseUtils.chat)
           .document(userId)
-          .setData({'user': userId});
+          .setData({userId: lastSeen});
+      await Firestore.instance
+          .collection('Typing')
+          .document(userId)
+          .setData({'typing': ''});
     } catch (e) {
       print(e);
     }
