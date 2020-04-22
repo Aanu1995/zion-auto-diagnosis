@@ -19,8 +19,12 @@ class FirebaseUtils {
   static String get notification => 'notification';
 
   // documents and collections (friebase) for chats
-  static String get chat => "chat";
+  static String get chats => "chats";
   static String get admin => "admin";
+  static String get messages => 'messages';
+  static String get groups => 'groups';
+  static String get group => 'group';
+  static String get oneone => 'oneone';
 
   // this returns string result to data submitted to backend
   // results could be success or error

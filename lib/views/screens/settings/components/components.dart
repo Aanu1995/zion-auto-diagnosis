@@ -6,6 +6,7 @@ import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/views/components/empty_space.dart';
 import 'package:zion/views/utils/dependency_injection.dart';
 import 'package:zion/views/utils/imageUtils.dart';
+import 'package:zion/views/utils/device_scale/flutter_scale_aware.dart';
 
 // Stream widget that gets stream from backend to the screen
 class ProfileStreamData extends StatefulWidget {
@@ -92,7 +93,7 @@ class CustomCircleAvatar extends StatelessWidget {
   final double size;
   final void Function() onPressed;
 
-  const CustomCircleAvatar({this.profileURL, this.size, this.onPressed});
+  CustomCircleAvatar({this.profileURL, this.size, this.onPressed});
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).accentColor;
@@ -100,10 +101,10 @@ class CustomCircleAvatar extends StatelessWidget {
         ? ClipRRect(
             borderRadius: BorderRadius.circular(100.0),
             child: Container(
-              color: Colors.grey[300],
+              color: Colors.white,
               child: SizedBox(
-                  height: size,
-                  width: size,
+                  height: context.scale(size),
+                  width: context.scale(size),
                   child: profileURL.isEmpty
                       ? Image.asset(ImageUtils.defaultProfile)
                       : CachedNetworkImage(imageUrl: profileURL)),
@@ -115,10 +116,10 @@ class CustomCircleAvatar extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(1000.0),
                 child: Container(
-                  color: Colors.grey[300],
+                  color: Colors.white,
                   child: SizedBox(
-                    height: 150.0,
-                    width: 150.0,
+                    height: context.scale(150.0),
+                    width: context.scale(150.0),
                     child: profileURL.isEmpty
                         ? Image.asset(ImageUtils.defaultProfile)
                         : CachedNetworkImage(imageUrl: profileURL),

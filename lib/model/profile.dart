@@ -10,11 +10,13 @@ class UserProfile extends Equatable {
   final String address;
   final String notificationId;
   final bool online;
+  final String id;
   final DateTime lastActive;
 
   UserProfile({
     this.name,
     this.email,
+    this.id,
     this.profileURL,
     this.phoneNumber,
     this.address,
@@ -34,6 +36,7 @@ class UserProfile extends Equatable {
       profileURL: map['profileURL'] ?? '',
       phoneNumber: map['phone'] ?? '',
       address: map['address'] ?? '',
+      id: map['id'] ?? '',
       online: map['online'],
       lastActive: dateTime ?? DateTime.now(),
       notificationId: map['notificationId'],
@@ -41,7 +44,7 @@ class UserProfile extends Equatable {
   }
 
   static Future<Map<String, dynamic>> toMap(
-      {@required UserProfile user}) async {
+      {@required UserProfile user, String id}) async {
     // playerId (One signal notification)
     final playerId = await PushNotificationService.getPlayerId();
     return {
@@ -51,11 +54,12 @@ class UserProfile extends Equatable {
       'phone': user.phoneNumber ?? '',
       'address': user.address ?? '',
       'online': user.online,
+      'id': id,
       'notificationId': playerId ?? ''
     };
   }
 
   @override
   List<Object> get props =>
-      [this.name, email, profileURL, phoneNumber, address, notificationId];
+      [this.name, email, profileURL, phoneNumber, address, notificationId, id];
 }

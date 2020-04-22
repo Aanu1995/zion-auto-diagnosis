@@ -21,10 +21,12 @@ class MessageListView extends StatefulWidget {
   final bool isLoadingMore;
   final Function onLoadEarlier;
   final Function(bool) defaultLoadCallback;
+  final Color fromColor;
 
   MessageListView({
     this.isLoadingMore,
     this.shouldShowLoadEarlier,
+    @required this.fromColor,
     this.onLoadEarlier,
     this.defaultLoadCallback,
     this.messageContainerPadding =
@@ -169,6 +171,7 @@ class _MessageListViewState extends State<MessageListView> {
                                 isUser: widget.messages[i].user.uid ==
                                     widget.user.uid,
                                 message: widget.messages[i],
+                                fromColor: widget.fromColor,
                                 messageImageBuilder: widget.messageImageBuilder,
                                 timeFormat: widget.timeFormat,
                                 parsePatterns: widget.parsePatterns,

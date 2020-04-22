@@ -155,9 +155,11 @@ class ZionMessageChat extends StatefulWidget {
   /// Margin for the default input toolbar
   /// by default it padding is set 0.0
   final EdgeInsets inputToolbarMargin;
+  final Color fromColor;
 
   ZionMessageChat({
     Key key,
+    this.fromColor,
     this.inputTextDirection = TextDirection.ltr,
     this.inputToolbarMargin = const EdgeInsets.all(0.0),
     this.inputToolbarPadding = const EdgeInsets.all(0.0),
@@ -277,6 +279,7 @@ class ZionMessageChatState extends State<ZionMessageChat> {
         children: <Widget>[
           Expanded(
             child: MessageListView(
+              fromColor: widget.fromColor,
               shouldShowLoadEarlier: widget.shouldShowLoadEarlier,
               isLoadingMore: widget.isLoadingMore,
               onLoadEarlier: widget.onLoadEarlier,

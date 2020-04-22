@@ -1,17 +1,11 @@
-import 'package:badges/badges.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:persistent_bottom_nav_bar/utils/utils.dart';
 import 'package:provider/provider.dart';
-import 'package:zion/model/app.dart';
 import 'package:zion/model/chat.dart';
 import 'package:zion/model/profile.dart';
+import 'package:zion/provider/user_provider.dart';
 import 'package:zion/views/components/shimmer.dart';
-import 'package:zion/views/screens/chat/admin_chat_page.dart';
-import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
-import 'package:zion/views/screens/settings/components/components.dart';
+import 'package:zion/views/screens/chat/components/group/group_chat_widget.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 
 class ChatPage extends StatefulWidget {
@@ -22,12 +16,13 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  FirebaseUser user; // firebase user
+  UserProfile userProfile;
+  List chatList = [];
 
   @override
   void initState() {
     super.initState();
-    user = Provider.of<User>(context, listen: false).user;
+    userProfile = Provider.of<UserProvider>(context, listen: false).userProfile;
   }
 
   @override
@@ -37,85 +32,59 @@ class _ChatPageState extends State<ChatPage> {
       body: Container(
         margin: EdgeInsets.symmetric(vertical: 6.0),
         child: StreamBuilder<QuerySnapshot>(
-          stream: Stream.value(Provider.of<QuerySnapshot>(context)),
+          stream: FirebaseUtils.firestore
+              .collection(FirebaseUtils.user)
+              .document(userProfile.id)
+              .collection(FirebaseUtils.groups)
+              .snapshots(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final responderProfile =
-                  UserProfile.fromMap(map: snapshot.data.documents[0].data);
+            if (!snapshot.hasData || snapshot.data.documents == null)
+              Offstage();
+            else if (snapshot.hasData) {
+              final groups = [];
+              snapshot.data.documents.forEach((id) {
+                groups.add(id.documentID);
+              });
               // displays the admin profile in the chat
-              return StreamBuilder<QuerySnapshot>(
-                stream: Firestore.instance
-                    .collection(FirebaseUtils.chat)
-                    .document(user.uid)
-                    .collection(FirebaseUtils.admin)
-                    .orderBy('createdAt', descending: true)
-                    .snapshots(),
-                builder: (context, messagesSnapshot) {
-                  if (messagesSnapshot.hasData) {
-                    /// gets the time the user read from the chat
-                    /// use it to determine the count of unread messages
-                    /// Also gets the latest message and time of the chat
-                    return FutureBuilder(
-                      future: getLatestData(messagesSnapshot.data, user.uid),
-                      builder: (context, chatData) {
-                        if (chatData.hasData) {
-                          return ChatWidget(
-                            chatData: chatData.data,
-                            user: user,
-                            responderProfile: responderProfile,
-                          );
-                        }
-                        return ChatWidget(
-                          chatData: ChatData(),
-                          user: user,
-                          responderProfile: responderProfile,
-                        );
-                      },
-                    );
-                  }
-                  return ChatWidget(
-                    chatData: ChatData(),
-                    user: user,
-                    responderProfile: responderProfile,
-                  );
-                },
+              return SizedBox.expand(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: Stream.value(Provider.of<QuerySnapshot>(context)),
+                  builder: (context, allChatsSnapshot) {
+                    if (allChatsSnapshot.hasData &&
+                        allChatsSnapshot.connectionState ==
+                            ConnectionState.done) {
+                      final allChats = allChatsSnapshot.data.documents;
+                      if (allChats.length == 0) {
+                        return Container();
+                      }
+                      return ListView.builder(
+                        itemCount: allChats.length,
+                        itemBuilder: (context, index) {
+                          final chat = allChats[index];
+                          if (groups.contains(chat.documentID)) {
+                            Group group = Group.fromMap(map: chat.data);
+                            return GroupChatWidget(
+                              group: group,
+                              user: userProfile,
+                            );
+                          }
+                          return Offstage();
+                        },
+                      );
+                    }
+                    return ShimmerLoadingList();
+                  },
+                ),
               );
             }
-            return ShimmerLoadingItem();
+            return ShimmerLoadingList();
           },
         ),
       ),
     );
   }
-
-// gets latest unread messages from the server
-  /// use it to determine the count of unread messages
-  /// Also gets the latest message and time of the chat
-  Future<ChatData> getLatestData(QuerySnapshot snapshot, String chatId) async {
-    int count = 0;
-    final messages = snapshot.documents;
-    ChatMessage lastMessage = ChatMessage.fromJson(messages[0].data);
-    final document = await Firestore.instance
-        .collection(FirebaseUtils.chat)
-        .document(chatId)
-        .get();
-    final userLastSeenTime =
-        document.data[user.uid] + 5000; // a delay of 5 seconds
-    if (userLastSeenTime != null) {
-      messages.forEach((mess) {
-        int messTime = int.parse(mess.documentID);
-        if (userLastSeenTime < messTime) {
-          count = count + 1;
-        }
-      });
-    }
-    return ChatData(
-        lastMessage: lastMessage.text,
-        time: DateFormat('h:mm a').format(lastMessage.createdAt),
-        unreadMessages: count);
-  }
 }
-
+/* 
 class ChatWidget extends StatelessWidget {
   final UserProfile responderProfile;
   final ChatData chatData;
@@ -252,3 +221,4 @@ class ChatWidget extends StatelessWidget {
     );
   }
 }
+ */

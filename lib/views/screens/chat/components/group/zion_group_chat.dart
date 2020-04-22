@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,39 +8,50 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:zion/model/profile.dart';
+import 'package:zion/model/chat.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/screens/chat/components/full_image.dart';
-import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
 import 'package:zion/views/screens/chat/components/image_pick_preview_page.dart';
+import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
 
-class ZionChat extends StatefulWidget {
+class ZionGroupChat extends StatefulWidget {
   final chatKey;
-  final List<ChatMessage> messages;
-  final bool online;
-  DocumentSnapshot lastDocumentSnapshot;
+  final Group group;
+  List<ChatMessage> messages;
   final ChatUser user;
-  final UserProfile responderProfile;
-  ZionChat(
+
+  DocumentSnapshot lastDocumentSnapshot;
+
+  ZionGroupChat(
       {this.chatKey,
+      this.group,
       this.messages,
       this.user,
-      this.lastDocumentSnapshot,
-      this.responderProfile,
-      this.online});
+      this.lastDocumentSnapshot});
 
   @override
-  _ZionChatState createState() => _ZionChatState();
+  _ZionGroupChatState createState() => _ZionGroupChatState();
 }
 
-class _ZionChatState extends State<ZionChat> {
+class _ZionGroupChatState extends State<ZionGroupChat> {
   List<ChatMessage> messages = [];
   //checks if the loadmore button as been clicked
   // displays loading indicator if true
   bool isLoadingMore = false;
   List<ChatMessage> falseMessages = [];
+  final focusNode = FocusNode();
+  static var random = new Random();
+
+  static List<Color> color = [
+    Colors.red,
+    Colors.blue,
+    Colors.orange,
+    Colors.purple,
+    Colors.green,
+    Colors.indigo,
+    Colors.pink,
+  ];
 
   @override
   void initState() {
@@ -53,11 +65,11 @@ class _ZionChatState extends State<ZionChat> {
         if (connect) {
           if (visible) {
             ChatServcice.isTyping(
-              widget.user.uid,
+              widget.group.id,
               username: widget.user.name,
             );
           } else {
-            ChatServcice.isTyping(widget.user.uid);
+            ChatServcice.isTyping(widget.group.id);
           }
         }
       },
@@ -68,24 +80,15 @@ class _ZionChatState extends State<ZionChat> {
   Widget build(BuildContext context) {
     messages = [...falseMessages, ...widget.messages];
     // checks if the messages has been seen
-    messages.forEach((chat) {
-      if (chat.messageStatus >= 0 && chat.user.uid != widget.user.uid) {
-        if (chat.messageStatus != 2) {
-          ChatServcice.updateMessageStatus(
-            chatId: widget.user.uid,
-            status: 2,
-            documentId: chat.documentId,
-          );
-        }
-      }
-    });
     return ZionMessageChat(
       key: widget.chatKey,
       onSend: onSend,
       user: widget.user,
+      focusNode: focusNode,
+      fromColor: color[random.nextInt(7)],
       inputDecoration: InputDecoration.collapsed(hintText: "Type a message"),
       timeFormat: DateFormat('h:mm a'),
-      messages: messages,
+      messages: widget.messages,
       inputMaxLines: 6,
       alwaysShowSend: true,
       messageImageBuilder: (image, file) {
@@ -133,25 +136,19 @@ class _ZionChatState extends State<ZionChat> {
       onLoadEarlier: () => loadMore(),
       leading: IconButton(
         icon: Icon(Icons.photo),
-        onPressed: () => onSendImage(),
+        onPressed: onSendImage,
       ),
     );
   }
 
 // send chat messages (text)
-  void onSend(ChatMessage message) {
-    final mess = message;
-    mess.messageStatus =
-        widget.online ? 1 : 0; // checks whether messages will be delivered
-    ChatServcice.sendMessage(
-      message: mess,
-      chatId: widget.user.uid,
-    );
+  void onSend(final message) {
+    ChatServcice.sendMessage(message: message, chatId: widget.group.id);
   }
 
 // send chat images to the server
   void onSendImage() async {
-    //pick images from the gallery
+    // send images picked during chat to the server
     File result = await ImagePicker.pickImage(
         source: ImageSource.gallery, imageQuality: 50);
     if (result != null) {
@@ -172,8 +169,8 @@ class _ZionChatState extends State<ZionChat> {
           file: result,
           text: text,
           user: widget.user,
-          chatId: widget.user.uid,
-          status: widget.online ? 1 : 0,
+          chatId: widget.group.id,
+          status: 0,
         );
         // empty the false messages
         falseMessages.clear();
@@ -188,7 +185,7 @@ class _ZionChatState extends State<ZionChat> {
       setState(() {});
     });
     List<DocumentSnapshot> result = await ChatServcice.loadMoreMessages(
-        widget.user.uid, widget.lastDocumentSnapshot);
+        widget.group.id, widget.lastDocumentSnapshot);
     if (result.isNotEmpty) {
       widget.lastDocumentSnapshot = result[result.length - 1];
       final newMessages =

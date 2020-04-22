@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:zion/controller/chat_streams.dart';
 import 'package:zion/model/app.dart';
 import 'package:zion/router/router.dart';
 import 'package:zion/views/components/custom_multiprovider.dart';
@@ -14,10 +14,18 @@ import 'package:zion/views/screens/splash_page.dart';
 import 'package:zion/views/utils/global_data_utils.dart';
 import 'package:zion/views/utils/theme_utils.dart';
 
+import 'views/utils/device_scale/flutter_scale_aware.dart';
+
 // our application starts running here
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await init();
   runApp(CustomMultiprovider(child: MyApp()));
+}
+
+init() async {
+  final appDocumentDir = await getApplicationDocumentsDirectory();
+  Hive..init(appDocumentDir.path);
 }
 
 class MyApp extends StatefulWidget {
@@ -30,7 +38,6 @@ class _MyAppState extends State<MyApp> {
   // by default the user has not been authenticated
   // user will be taken to login screen
   Widget page = LoginPage();
-  ChatStreams _chatStreams = ChatStreams();
 
   @override
   void initState() {
@@ -84,22 +91,18 @@ class _MyAppState extends State<MyApp> {
         } else {
           return Consumer<AppModel>(
             builder: (context, app, _) {
-              return MaterialApp(
-                title: 'Zion Auto Diagnosis',
-                theme: app.darkTheme
-                    ? ThemeUtils.buildDarkTheme()
-                    : ThemeUtils.buildLightTheme(),
-                debugShowCheckedModeBanner: false,
-                home: MultiProvider(
-                  providers: [
-                    StreamProvider<QuerySnapshot>(
-                      create: (_) => _chatStreams.allChatsStream,
-                    )
-                  ],
-                  child: page,
+              return ScaleAware(
+                config: ScaleConfig(),
+                child: MaterialApp(
+                  title: 'Zion Auto Diagnosis',
+                  theme: app.darkTheme
+                      ? ThemeUtils.buildDarkTheme()
+                      : ThemeUtils.buildLightTheme(),
+                  debugShowCheckedModeBanner: false,
+                  home: page,
+                  routes:
+                      Routes.getroutes, // defines the routes of the application
                 ),
-                routes:
-                    Routes.getroutes, // defines the routes of the application
               );
             },
           );
