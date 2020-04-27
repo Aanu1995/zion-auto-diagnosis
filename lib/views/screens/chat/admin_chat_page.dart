@@ -1,67 +1,68 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:zion/model/chat.dart';
 import 'package:zion/model/profile.dart';
+import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/components/empty_space.dart';
 import 'package:zion/views/screens/chat/components/zion_chat.dart';
 import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
 import 'package:zion/views/screens/settings/components/components.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
-import 'package:timeago/timeago.dart' as timeago;
 import 'package:zion/views/utils/imageUtils.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
-class AdminChatPage extends StatefulWidget {
-  final String userId;
+class AdminChatPage extends StatelessWidget {
+  final ChatModel oneone;
+  final user;
   final UserProfile responderProfile;
-  const AdminChatPage({
-    this.userId,
+  AdminChatPage({
+    this.user,
+    this.oneone,
     this.responderProfile,
   });
 
-  @override
-  _AdminChatPageState createState() => _AdminChatPageState();
-}
-
-class _AdminChatPageState extends State<AdminChatPage> {
   final GlobalKey<ZionMessageChatState> _chatViewKey =
       GlobalKey<ZionMessageChatState>();
 
-  String lastActive;
-
-  @override
-  void initState() {
-    super.initState();
-    final result =
-        DateTime.now().difference(widget.responderProfile.lastActive);
-    lastActive = timeago.format(DateTime.now().subtract(result));
-  }
-
   Widget userTyping() {
+    final now = new DateTime.now();
+    final difference = now.difference(responderProfile.lastActive);
+    String lastSeen = timeago.format(now.subtract(difference));
     return StreamBuilder<DocumentSnapshot>(
       stream: Firestore.instance
           .collection('Typing')
-          .document(widget.userId)
+          .document(oneone.id)
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          String isTyping = snapshot.data.data['typing'];
-          if (isTyping != null &&
-              isTyping.isNotEmpty &&
-              isTyping != widget.userId) {
+        if (!snapshot.hasData || snapshot.data.data == null) {
+          return Text(
+            responderProfile.online ? 'Online' : lastSeen,
+            style: GoogleFonts.abel(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 14.0,
+            ),
+          );
+        } else {
+          String memberId = snapshot.data.data['typing'];
+          if (memberId != null && memberId.isNotEmpty && memberId != user.id) {
             return Text(
-              'Typing',
+              'typing',
               style: GoogleFonts.abel(
                 fontWeight: FontWeight.bold,
+                color: Colors.white,
                 fontSize: 14.0,
               ),
             );
           }
         }
         return Text(
-          widget.responderProfile.online ? 'Online' : 'Last seen: $lastActive',
+          responderProfile.online ? 'Online' : lastSeen,
           style: GoogleFonts.abel(
             fontWeight: FontWeight.bold,
-            fontSize: 12.0,
+            color: Colors.white,
+            fontSize: 14.0,
           ),
         );
       },
@@ -76,7 +77,7 @@ class _AdminChatPageState extends State<AdminChatPage> {
           children: [
             CustomCircleAvatar(
               size: 40.0,
-              profileURL: widget.responderProfile.profileURL,
+              profileURL: responderProfile.profileURL,
             ),
             EmptySpace(horizontal: true, multiple: 1.5),
             Column(
@@ -84,7 +85,7 @@ class _AdminChatPageState extends State<AdminChatPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.responderProfile.name,
+                  responderProfile.name,
                   style: GoogleFonts.abel(fontWeight: FontWeight.bold),
                 ),
                 userTyping(),
@@ -95,19 +96,18 @@ class _AdminChatPageState extends State<AdminChatPage> {
       ),
       body: Stack(
         fit: StackFit.expand,
-        children: <Widget>[
+        children: [
           Image.asset(
             ImageUtils.chatBackground,
             fit: BoxFit.cover,
           ),
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-            // gets messages in real time
-            child: StreamBuilder(
+            margin: EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+            child: StreamBuilder<QuerySnapshot>(
               stream: Firestore.instance
                   .collection(FirebaseUtils.chats)
-                  .document(widget.userId)
-                  .collection(FirebaseUtils.admin)
+                  .document(oneone.id)
+                  .collection(FirebaseUtils.messages)
                   .orderBy('createdAt', descending: true)
                   .limit(20)
                   .snapshots(),
@@ -118,16 +118,15 @@ class _AdminChatPageState extends State<AdminChatPage> {
                   List<DocumentSnapshot> items = snapshot.data.documents;
                   final messages =
                       items.map((i) => ChatMessage.fromJson(i.data)).toList();
-                  // send last seen of the user in the chat to the server
-                  // ChatServcice.updateLastSeen(widget.userId, widget.userId);
+                  // update the time that a message was read
+                  ChatServcice.updateGroupCheckMessageTime(user.id, oneone.id);
                   return ZionChat(
                     chatKey: _chatViewKey,
-                    online: widget.responderProfile.online,
                     messages: messages,
+                    oneone: oneone,
                     lastDocumentSnapshot:
                         items.length != 0 ? items[items.length - 1] : null,
-                    user: ChatUser(uid: widget.userId),
-                    responderProfile: widget.responderProfile,
+                    user: ChatUser(uid: user.id, name: ''),
                   );
                 }
                 return Container();

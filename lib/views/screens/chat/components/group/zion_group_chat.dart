@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41,17 +40,9 @@ class _ZionGroupChatState extends State<ZionGroupChat> {
   bool isLoadingMore = false;
   List<ChatMessage> falseMessages = [];
   final focusNode = FocusNode();
-  static var random = new Random();
 
-  static List<Color> color = [
-    Colors.red,
-    Colors.blue,
-    Colors.orange,
-    Colors.purple,
-    Colors.green,
-    Colors.indigo,
-    Colors.pink,
-  ];
+  KeyboardVisibilityNotification _keyboard = KeyboardVisibilityNotification();
+  int id;
 
   @override
   void initState() {
@@ -59,7 +50,7 @@ class _ZionGroupChatState extends State<ZionGroupChat> {
     // checks if user is typing
     // send notification to the server if typing
     // and stop typing
-    KeyboardVisibilityNotification().addNewListener(
+    id = _keyboard.addNewListener(
       onChange: (bool visible) async {
         bool connect = await DataConnectionChecker().hasConnection;
         if (connect) {
@@ -77,18 +68,26 @@ class _ZionGroupChatState extends State<ZionGroupChat> {
   }
 
   @override
+  void dispose() {
+    _keyboard.removeListener(id);
+    _keyboard.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     messages = [...falseMessages, ...widget.messages];
     // checks if the messages has been seen
+    // empty the false messages
+    falseMessages.clear();
     return ZionMessageChat(
       key: widget.chatKey,
       onSend: onSend,
       user: widget.user,
       focusNode: focusNode,
-      fromColor: color[random.nextInt(7)],
       inputDecoration: InputDecoration.collapsed(hintText: "Type a message"),
       timeFormat: DateFormat('h:mm a'),
-      messages: widget.messages,
+      messages: messages,
       inputMaxLines: 6,
       alwaysShowSend: true,
       messageImageBuilder: (image, file) {
@@ -172,8 +171,6 @@ class _ZionGroupChatState extends State<ZionGroupChat> {
           chatId: widget.group.id,
           status: 0,
         );
-        // empty the false messages
-        falseMessages.clear();
       }
     }
   }

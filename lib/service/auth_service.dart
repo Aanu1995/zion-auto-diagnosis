@@ -5,6 +5,7 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'package:zion/model/app.dart';
 import 'package:zion/model/profile.dart';
+import 'package:zion/service/chat_service.dart';
 import 'package:zion/service/notification_service.dart';
 import 'package:zion/views/screens/authentication/login_page.dart';
 import 'package:zion/views/utils/exception_utils.dart';
@@ -19,11 +20,12 @@ class AuthService {
           email: user.email, password: password);
       final userProfile =
           await UserProfile.toMap(user: user, id: result.user.uid);
-      await FirebaseUtils.firestore
+      FirebaseUtils.firestore
           .collection(FirebaseUtils.user)
           .document(result.user.uid)
           .setData(userProfile);
       // returns success
+      ChatServcice.chatWithAdmins(userId: result.user.uid);
       return FirebaseUtils.success;
     } catch (e) {
       String error = ExceptionUtils.authenticationException(e);

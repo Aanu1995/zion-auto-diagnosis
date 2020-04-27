@@ -5,28 +5,19 @@ import 'package:zion/model/chat.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/provider/user_provider.dart';
 import 'package:zion/views/components/shimmer.dart';
+import 'package:zion/views/screens/chat/components/chat_widget.dart';
 import 'package:zion/views/screens/chat/components/group/group_chat_widget.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 
-class ChatPage extends StatefulWidget {
+class ChatPage extends StatelessWidget {
   const ChatPage({Key key}) : super(key: key);
 
-  @override
-  _ChatPageState createState() => _ChatPageState();
-}
-
-class _ChatPageState extends State<ChatPage> {
-  UserProfile userProfile;
-  List chatList = [];
-
-  @override
-  void initState() {
-    super.initState();
-    userProfile = Provider.of<UserProvider>(context, listen: false).userProfile;
-  }
+  static UserProfile userProfile;
+  static List chatList = [];
 
   @override
   Widget build(BuildContext context) {
+    userProfile = Provider.of<UserProvider>(context).userProfile;
     return Scaffold(
       appBar: AppBar(title: Text("Chats")),
       body: Container(
@@ -45,7 +36,6 @@ class _ChatPageState extends State<ChatPage> {
               snapshot.data.documents.forEach((id) {
                 groups.add(id.documentID);
               });
-              // displays the admin profile in the chat
               return SizedBox.expand(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: Stream.value(Provider.of<QuerySnapshot>(context)),
@@ -62,11 +52,22 @@ class _ChatPageState extends State<ChatPage> {
                         itemBuilder: (context, index) {
                           final chat = allChats[index];
                           if (groups.contains(chat.documentID)) {
-                            Group group = Group.fromMap(map: chat.data);
-                            return GroupChatWidget(
-                              group: group,
-                              user: userProfile,
-                            );
+                            final chatType = chat.data['chat_type'];
+                            if (chatType == FirebaseUtils.group) {
+                              Group group = Group.fromMap(map: chat.data);
+                              return GroupChatWidget(
+                                group: group,
+                                user: userProfile,
+                              );
+                            }
+                            if (chatType == FirebaseUtils.oneone) {
+                              ChatModel oneone =
+                                  ChatModel.fromMap(map: chat.data);
+                              return ChatWidget(
+                                oneone: oneone,
+                                user: userProfile,
+                              );
+                            }
                           }
                           return Offstage();
                         },
@@ -84,141 +85,3 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 }
-/* 
-class ChatWidget extends StatelessWidget {
-  final UserProfile responderProfile;
-  final ChatData chatData;
-  final FirebaseUser user;
-  const ChatWidget({this.chatData, this.user, this.responderProfile});
-
-  Widget userTyping() {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: Firestore.instance
-          .collection('Typing')
-          .document(user.uid)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          String isTyping = snapshot.data.data['typing'];
-          if (isTyping != null && isTyping.isNotEmpty && isTyping != user.uid) {
-            return Text(
-              'Typing',
-              style: GoogleFonts.abel(
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-                fontSize: 14.0,
-              ),
-            );
-          }
-        }
-        return Expanded(
-          child: Text(
-            chatData.lastMessage,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 16.0,
-              color: Colors.black54,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 8.0),
-        child: ListTile(
-          contentPadding: EdgeInsets.only(left: 0.0, right: 12.0),
-          leading: Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              CircleAvatar(
-                radius: 35.0,
-                child: CustomCircleAvatar(
-                  size: 56.0,
-                  profileURL: responderProfile.profileURL,
-                ),
-              ),
-              Positioned(
-                bottom: 6.0,
-                right: 6.0,
-                child: CircleAvatar(
-                  radius: 6,
-                  backgroundColor:
-                      responderProfile.online ? Colors.green : Colors.redAccent,
-                ),
-              )
-            ],
-          ),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                responderProfile.name,
-                style: TextStyle(
-                  fontSize: 17.5,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-              Text(
-                chatData.time,
-                style: TextStyle(
-                  color: chatData.unreadMessages > 0
-                      ? Colors.green
-                      : Colors.black54,
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          subtitle: Padding(
-            padding:
-                EdgeInsets.only(top: chatData.unreadMessages > 0 ? 0.0 : 4.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                userTyping(),
-                if (chatData.unreadMessages > 0)
-                  Padding(
-                    padding: EdgeInsets.only(right: 8.0, left: 16.0),
-                    child: Badge(
-                      badgeColor: Colors.green,
-                      padding: EdgeInsets.all(6.0),
-                      badgeContent: Text(
-                        '${chatData.unreadMessages}',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14.0,
-                        ),
-                      ),
-                    ),
-                  )
-              ],
-            ),
-          ),
-          onTap: () async {
-            // takes user to the admin chat page
-            pushDynamicScreen(
-              context,
-              screen: MaterialPageRoute(
-                builder: (context) => AdminChatPage(
-                  userId: user.uid,
-                  responderProfile: responderProfile,
-                ),
-              ),
-              platformSpecific: true,
-              withNavBar: false,
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
- */

@@ -2,10 +2,52 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:zion/model/chat.dart';
 import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 
 class ChatServcice {
+  // creates a chat id for the user and the admins
+  static void chatWithAdmins({String userId}) async {
+    final time = DateTime.now().millisecondsSinceEpoch;
+    try {
+      final result = await Firestore.instance
+          .collection(FirebaseUtils.admin)
+          .getDocuments();
+      for (int i = 0; i < result.documents.length; i++) {
+        final adminId = result.documents[i].documentID;
+        String chatId = userId + adminId;
+        ChatModel chatModel = ChatModel(id: chatId, time: time);
+        Firestore.instance
+            .collection(FirebaseUtils.chats)
+            .document(chatId)
+            .setData(ChatModel.toMap(chatModel: chatModel));
+        Firestore.instance
+            .collection(FirebaseUtils.user)
+            .document(userId)
+            .collection(FirebaseUtils.groups)
+            .document(chatId)
+            .setData({
+          'id': chatId,
+          'time': time,
+          'userId': userId,
+          'adminId': adminId,
+        });
+        Firestore.instance
+            .collection(FirebaseUtils.admin)
+            .document(userId)
+            .collection(FirebaseUtils.groups)
+            .document(chatId)
+            .setData({
+          'id': chatId,
+          'time': time,
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
 // send input messages to the server
   static sendMessage({ChatMessage message, String chatId}) async {
     final createdAt = DateTime.now().millisecondsSinceEpoch;
@@ -28,14 +70,16 @@ class ChatServcice {
   }
 
   //update messageStatus to seen
-  static updateMessageStatus({String chatId, int status, String documentId}) {
+  static updateMessageStatus({String chatId, List<String> messagesId}) {
     try {
-      Firestore.instance
-          .collection(FirebaseUtils.chats)
-          .document(chatId)
-          .collection(FirebaseUtils.messages)
-          .document(documentId)
-          .updateData({'messageStatus': status});
+      final docRef =
+          Firestore.instance.collection(FirebaseUtils.chats).document(chatId);
+      Firestore.instance.runTransaction((transaction) async {
+        messagesId.forEach((id) async {
+          final doc = docRef.collection(FirebaseUtils.messages).document(id);
+          await transaction.update(doc, {'messageStatus': 2});
+        });
+      });
     } catch (e) {}
   }
 
