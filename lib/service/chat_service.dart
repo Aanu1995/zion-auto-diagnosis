@@ -17,7 +17,8 @@ class ChatServcice {
       for (int i = 0; i < result.documents.length; i++) {
         final adminId = result.documents[i].documentID;
         String chatId = userId + adminId;
-        ChatModel chatModel = ChatModel(id: chatId, time: time);
+        ChatModel chatModel =
+            ChatModel(id: chatId, time: time, adminId: adminId, userId: userId);
         Firestore.instance
             .collection(FirebaseUtils.chats)
             .document(chatId)
@@ -30,12 +31,10 @@ class ChatServcice {
             .setData({
           'id': chatId,
           'time': time,
-          'userId': userId,
-          'adminId': adminId,
         });
         Firestore.instance
             .collection(FirebaseUtils.admin)
-            .document(userId)
+            .document(adminId)
             .collection(FirebaseUtils.groups)
             .document(chatId)
             .setData({

@@ -44,33 +44,26 @@ class ChatPage extends StatelessWidget {
                         allChatsSnapshot.connectionState ==
                             ConnectionState.done) {
                       final allChats = allChatsSnapshot.data.documents;
-                      if (allChats.length == 0) {
-                        return Container();
-                      }
-                      return ListView.builder(
-                        itemCount: allChats.length,
-                        itemBuilder: (context, index) {
-                          final chat = allChats[index];
+                      if (allChats.length == 0) return Container();
+                      return ListView(
+                        children: allChats.map((f) {
+                          final chat = f;
                           if (groups.contains(chat.documentID)) {
                             final chatType = chat.data['chat_type'];
                             if (chatType == FirebaseUtils.group) {
                               Group group = Group.fromMap(map: chat.data);
                               return GroupChatWidget(
-                                group: group,
-                                user: userProfile,
-                              );
+                                  group: group, user: userProfile);
                             }
                             if (chatType == FirebaseUtils.oneone) {
                               ChatModel oneone =
                                   ChatModel.fromMap(map: chat.data);
                               return ChatWidget(
-                                oneone: oneone,
-                                user: userProfile,
-                              );
+                                  oneone: oneone, user: userProfile);
                             }
                           }
                           return Offstage();
-                        },
+                        }).toList(),
                       );
                     }
                     return ShimmerLoadingList();

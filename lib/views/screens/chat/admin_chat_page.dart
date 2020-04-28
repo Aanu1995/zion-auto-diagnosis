@@ -127,6 +127,7 @@ class AdminChatPage extends StatelessWidget {
                     lastDocumentSnapshot:
                         items.length != 0 ? items[items.length - 1] : null,
                     user: ChatUser(uid: user.id, name: ''),
+                    isResponderOnline: responderProfile.online,
                   );
                 }
                 return Container();

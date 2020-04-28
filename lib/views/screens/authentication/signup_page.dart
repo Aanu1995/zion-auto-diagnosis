@@ -285,15 +285,19 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
       SystemChannels.textInput.invokeMethod('TextInput.hide'); // hides keyboard
       FocusScope.of(context).unfocus();
       // show the progress indicator in the button
-      // checks if there is internet connection
-      bool connectionStatus = await DataConnectionChecker().hasConnection;
-      if (!connectionStatus) {
-        CustomButtomSheets.showConnectionError(context);
-        return;
-      }
       setState(() {
         isCreatingAccount = true;
       });
+      // checks if there is internet connection
+      bool connectionStatus = await DataConnectionChecker().hasConnection;
+      if (!connectionStatus) {
+        setState(() {
+          isCreatingAccount = false;
+        });
+        await CustomButtomSheets.showConnectionError(context);
+        return;
+      }
+
       final playerId = await PushNotificationService.getPlayerId();
       final user = UserProfile(
         name: _nameController.text.toString(),

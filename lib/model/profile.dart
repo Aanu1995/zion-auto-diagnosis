@@ -38,7 +38,7 @@ class UserProfile extends Equatable {
       address: map['address'] ?? '',
       id: map['id'] ?? '',
       online: map['online'],
-      lastActive: dateTime ?? DateTime.now(),
+      lastActive: dateTime,
       notificationId: map['notificationId'],
     );
   }
@@ -55,6 +55,7 @@ class UserProfile extends Equatable {
       'address': user.address ?? '',
       'online': user.online,
       'id': id,
+      'lastActive': DateTime.now().millisecondsSinceEpoch,
       'notificationId': playerId ?? ''
     };
   }
