@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:zion/model/chat.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/service/chat_service.dart';
@@ -25,6 +24,12 @@ class AdminChatPage extends StatelessWidget {
   final GlobalKey<ZionMessageChatState> _chatViewKey =
       GlobalKey<ZionMessageChatState>();
 
+  final textStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+    fontSize: 13.0,
+  );
+
   Widget userTyping() {
     final now = new DateTime.now();
     final difference = now.difference(responderProfile.lastActive);
@@ -38,32 +43,20 @@ class AdminChatPage extends StatelessWidget {
         if (!snapshot.hasData || snapshot.data.data == null) {
           return Text(
             responderProfile.online ? 'Online' : lastSeen,
-            style: GoogleFonts.abel(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontSize: 14.0,
-            ),
+            style: textStyle,
           );
         } else {
           String memberId = snapshot.data.data['typing'];
           if (memberId != null && memberId.isNotEmpty && memberId != user.id) {
             return Text(
               'typing',
-              style: GoogleFonts.abel(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 14.0,
-              ),
+              style: textStyle,
             );
           }
         }
         return Text(
           responderProfile.online ? 'Online' : lastSeen,
-          style: GoogleFonts.abel(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: 14.0,
-          ),
+          style: textStyle,
         );
       },
     );
@@ -86,7 +79,7 @@ class AdminChatPage extends StatelessWidget {
               children: [
                 Text(
                   responderProfile.name,
-                  style: GoogleFonts.abel(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 userTyping(),
               ],

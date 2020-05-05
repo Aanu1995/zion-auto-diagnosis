@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zion/views/screens/authentication/login_page.dart';
 import 'package:zion/views/screens/authentication/signup_page.dart';
-import 'package:zion/views/screens/my_home_page.dart';
+import 'package:zion/views/screens/default_page.dart';
 import 'package:zion/views/screens/settings/profile_page.dart';
 
 class Routes {
@@ -13,7 +13,7 @@ class Routes {
   static Map<String, Widget Function(BuildContext)> get getroutes => {
         LOGINPAGE: (context) => LoginPage(),
         SIGNUPPAGE: (context) => SignupPage(),
-        MYHOMEPAGE: (context) => MyHomePage(),
+        MYHOMEPAGE: (context) => DefaultPage(),
         PROFILE: (context) => ProfilePage(),
       };
 }

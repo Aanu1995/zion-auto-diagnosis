@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:provider/provider.dart';
 import 'package:zion/model/chat.dart';
 import 'package:zion/model/profile.dart';
+import 'package:zion/provider/group_provider.dart';
 import 'package:zion/views/screens/chat/components/group/group_chat_page.dart';
 import 'package:zion/views/screens/settings/components/components.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
@@ -70,13 +72,12 @@ class GroupChatWidget extends StatelessWidget {
         ),
         onTap: () async {
           // takes user to the group chat page
+          Provider.of<CurrentGroupProvider>(context, listen: false).setGroup =
+              group;
           pushDynamicScreen(
             context,
             screen: MaterialPageRoute(
-              builder: (context) => GroupChatPage(
-                group: group,
-                user: user,
-              ),
+              builder: (context) => GroupChatPage(user: user),
             ),
             platformSpecific: true,
             withNavBar: false,

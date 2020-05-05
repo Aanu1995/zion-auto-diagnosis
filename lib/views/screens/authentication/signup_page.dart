@@ -10,7 +10,7 @@ import 'package:zion/views/components/custom_bottomsheets.dart';
 import 'package:zion/views/components/custom_dialogs.dart';
 import 'package:zion/views/components/empty_space.dart';
 import 'package:zion/views/screens/authentication/custom_components.dart';
-import 'package:zion/views/screens/my_home_page.dart';
+import 'package:zion/views/screens/default_page.dart';
 import 'package:zion/views/utils/color_utils.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 import 'package:zion/views/utils/validator.dart';
@@ -314,7 +314,7 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (result == FirebaseUtils.success) {
           // Takes the user to the home page if account creation is successful
-          Router.removeWidget(context: context, page: MyHomePage());
+          Router.removeWidget(context: context, page: DefaultPage());
         } else {
           // shows error message if account could not be created
           CustomDialogs.showErroDialog(context, result);

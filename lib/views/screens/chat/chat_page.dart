@@ -48,18 +48,44 @@ class ChatPage extends StatelessWidget {
                       return ListView(
                         children: allChats.map((f) {
                           final chat = f;
+
                           if (groups.contains(chat.documentID)) {
                             final chatType = chat.data['chat_type'];
                             if (chatType == FirebaseUtils.group) {
                               Group group = Group.fromMap(map: chat.data);
-                              return GroupChatWidget(
-                                  group: group, user: userProfile);
+                              return Column(
+                                children: [
+                                  GroupChatWidget(
+                                      group: group, user: userProfile),
+                                  if (allChats.length > 1 &&
+                                      f.documentID !=
+                                          allChats[allChats.length - 1]
+                                              .documentID)
+                                    const Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 90.0, right: 16.0),
+                                      child: Divider(height: 8.0),
+                                    )
+                                ],
+                              );
                             }
                             if (chatType == FirebaseUtils.oneone) {
                               ChatModel oneone =
                                   ChatModel.fromMap(map: chat.data);
-                              return ChatWidget(
-                                  oneone: oneone, user: userProfile);
+                              return Column(
+                                children: [
+                                  ChatWidget(oneone: oneone, user: userProfile),
+                                  if (allChats.length > 1 &&
+                                      f.documentID !=
+                                          allChats[allChats.length - 1]
+                                              .documentID)
+                                    const Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 90.0, right: 16.0),
+                                      child: Divider(height: 8.0),
+                                    )
+                                ],
+                              );
                             }
                           }
                           return Offstage();

@@ -1,46 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:zion/model/profile.dart';
-import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/views/components/empty_space.dart';
-import 'package:zion/views/utils/dependency_injection.dart';
 import 'package:zion/views/utils/imageUtils.dart';
 import 'package:zion/views/utils/device_scale/flutter_scale_aware.dart';
-
-// Stream widget that gets stream from backend to the screen
-class ProfileStreamData extends StatefulWidget {
-  final Widget Function(BuildContext, AsyncSnapshot<UserProfile>) builder;
-  ProfileStreamData({this.builder});
-
-  @override
-  _ProfileStreamDataState createState() => _ProfileStreamDataState();
-}
-
-class _ProfileStreamDataState extends State<ProfileStreamData> {
-  UserProfileService userProfileService;
-  @override
-  void initState() {
-    super.initState();
-    // calls the function that gets user details data from server
-    userProfileService = Provider.of<DependecyInjection>(context, listen: false)
-        .userProfileService;
-    userProfileService.fetchUserData();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<UserProfile>(
-      // user profile stream
-      stream: userProfileService.userProfileStreamController.stream,
-      // initial data pending the time the data from server is available
-      initialData: UserProfileService.initialData,
-      builder: (context, snapshot) {
-        return widget.builder(context, snapshot);
-      },
-    );
-  }
-}
 
 // button for user to select profile image
 // buttons such as delete, gallery and camera

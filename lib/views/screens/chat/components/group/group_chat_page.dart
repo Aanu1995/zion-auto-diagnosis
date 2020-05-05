@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:zion/model/chat.dart';
 import 'package:zion/model/profile.dart';
+import 'package:zion/provider/group_provider.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/components/empty_space.dart';
 import 'package:zion/views/screens/chat/components/group/zion_group_chat.dart';
@@ -11,17 +12,26 @@ import 'package:zion/views/screens/settings/components/components.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 import 'package:zion/views/utils/imageUtils.dart';
 
-class GroupChatPage extends StatelessWidget {
-  final Group group;
+class GroupChatPage extends StatefulWidget {
   final UserProfile user;
+  GroupChatPage({this.user});
 
-  GroupChatPage({
-    this.user,
-    this.group,
-  });
+  @override
+  _GroupChatPageState createState() => _GroupChatPageState();
+}
 
+class _GroupChatPageState extends State<GroupChatPage> {
   final GlobalKey<ZionMessageChatState> _chatViewKey =
       GlobalKey<ZionMessageChatState>();
+  Group group;
+
+  @override
+  void initState() {
+    super.initState();
+    /* GroupChatService.getMembersListFromServer(
+      Provider.of<CurrentGroupProvider>(context, listen: false).getGroup.id,
+    ); */
+  }
 
   Widget userTyping() {
     return StreamBuilder<DocumentSnapshot>(
@@ -36,13 +46,13 @@ class GroupChatPage extends StatelessWidget {
           String membername = snapshot.data.data['typing'];
           if (membername != null &&
               membername.isNotEmpty &&
-              membername != user.name) {
+              membername != widget.user.name) {
             return Text(
               '$membername is typing',
-              style: GoogleFonts.abel(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.green,
-                fontSize: 14.0,
+                fontSize: 13.0,
               ),
             );
           }
@@ -54,6 +64,7 @@ class GroupChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    group = Provider.of<CurrentGroupProvider>(context).getGroup;
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -69,7 +80,7 @@ class GroupChatPage extends StatelessWidget {
               children: [
                 Text(
                   group.name,
-                  style: GoogleFonts.abel(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 userTyping(),
               ],
@@ -102,14 +113,15 @@ class GroupChatPage extends StatelessWidget {
                   final messages =
                       items.map((i) => ChatMessage.fromJson(i.data)).toList();
                   // update the time that a message was read
-                  ChatServcice.updateGroupCheckMessageTime(user.id, group.id);
+                  ChatServcice.updateGroupCheckMessageTime(
+                      widget.user.id, group.id);
                   return ZionGroupChat(
                     chatKey: _chatViewKey,
                     messages: messages,
                     group: group,
                     lastDocumentSnapshot:
                         items.length != 0 ? items[items.length - 1] : null,
-                    user: ChatUser(uid: user.id, name: user.name),
+                    user: ChatUser(uid: widget.user.id, name: widget.user.name),
                   );
                 }
                 return Container();
