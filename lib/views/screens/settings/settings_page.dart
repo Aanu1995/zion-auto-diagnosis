@@ -12,6 +12,7 @@ import 'package:zion/views/screens/settings/components/edit.dart';
 import 'package:zion/views/screens/settings/profile_page.dart';
 
 class SettingsPage extends StatelessWidget {
+  const SettingsPage();
   @override
   Widget build(BuildContext context) {
     final appModel = Provider.of<AppModel>(context, listen: false);

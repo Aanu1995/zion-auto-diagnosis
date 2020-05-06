@@ -1,13 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zion/model/chat.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/provider/user_provider.dart';
+import 'package:zion/service/firestore_services.dart';
 import 'package:zion/views/components/shimmer.dart';
 import 'package:zion/views/screens/chat/components/chat_widget.dart';
 import 'package:zion/views/screens/chat/components/group/group_chat_widget.dart';
-import 'package:zion/views/utils/firebase_utils.dart';
 
 class ChatPage extends StatelessWidget {
   const ChatPage({Key key}) : super(key: key);
@@ -22,7 +21,46 @@ class ChatPage extends StatelessWidget {
       appBar: AppBar(title: Text("Chats")),
       body: Container(
         margin: EdgeInsets.symmetric(vertical: 6.0),
-        child: StreamBuilder<QuerySnapshot>(
+        child: StreamBuilder<List<AllChat>>(
+          stream: FirestoreServices.allChatStream(userProfile.id),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final chats = snapshot.data;
+              return ListView.builder(
+                itemCount: chats.length,
+                itemBuilder: (context, index) {
+                  final chat = chats[index];
+                  return Column(
+                    children: <Widget>[
+                      chat.isGroup
+                          ? GroupChatWidget(
+                              group: chat.group,
+                              user: userProfile,
+                            )
+                          : ChatWidget(
+                              oneone: chat.oneone,
+                              user: userProfile,
+                            ),
+                      if (chats.length > 1 && (index + 1) != chats.length)
+                        const Padding(
+                          padding: EdgeInsets.only(left: 90.0, right: 16.0),
+                          child: Divider(height: 8.0),
+                        )
+                    ],
+                  );
+                },
+              );
+            }
+            return ShimmerLoadingList();
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/* 
+StreamBuilder<QuerySnapshot>(
           stream: FirebaseUtils.firestore
               .collection(FirebaseUtils.user)
               .document(userProfile.id)
@@ -99,8 +137,4 @@ class ChatPage extends StatelessWidget {
             }
             return ShimmerLoadingList();
           },
-        ),
-      ),
-    );
-  }
-}
+        ), */

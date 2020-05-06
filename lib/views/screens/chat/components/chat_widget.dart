@@ -19,7 +19,6 @@ class ChatWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final time = DateFormat.jm()
         .format(DateTime.fromMillisecondsSinceEpoch(oneone.time));
-
     return StreamBuilder<DocumentSnapshot>(
       stream: FirebaseUtils.firestore
           .collection(FirebaseUtils.admin)

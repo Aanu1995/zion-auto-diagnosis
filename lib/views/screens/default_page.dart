@@ -106,10 +106,10 @@ class _DefaultPageState extends State<DefaultPage> {
       // displays the current screen based on the index
       // selected in the bottom navigation bar
       screens: <Widget>[
-        HomePage(),
-        SearchPage(),
-        ChatPage(),
-        SettingsPage(),
+        const HomePage(),
+        const SearchPage(),
+        const ChatPage(),
+        const SettingsPage(),
       ],
       showElevation: true,
       navBarCurve: NavBarCurve.none,

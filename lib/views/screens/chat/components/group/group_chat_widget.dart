@@ -107,7 +107,7 @@ class UnreadMessages extends StatelessWidget {
             return Offstage();
           } else {
             final messages = snapshot.data.documents;
-            int unreadMessages = 0;
+
             return FutureBuilder<DocumentSnapshot>(
               future: FirebaseUtils.firestore
                   .collection(FirebaseUtils.user)
@@ -116,9 +116,11 @@ class UnreadMessages extends StatelessWidget {
                   .document(group.id)
                   .get(),
               builder: (context, snap) {
+                print('Hello');
                 if (!snap.hasData || snap.data.data == null) {
                   return Offstage();
                 } else {
+                  int unreadMessages = 0;
                   messages.forEach((mess) {
                     int messTime = int.parse(mess.documentID);
                     int lastSeen = snap.data.data['time'];

@@ -1,6 +1,15 @@
 import 'package:equatable/equatable.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 
+class AllChat {
+  Group group;
+  ChatModel oneone;
+  bool isGroup;
+  int time;
+
+  AllChat({this.group, this.oneone, this.isGroup, this.time});
+}
+
 class ChatData extends Equatable {
   final int unreadMessages;
   final String chatId;
