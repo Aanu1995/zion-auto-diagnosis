@@ -8,7 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/chatmodel.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/screens/chat/components/full_image.dart';
 import 'package:zion/views/screens/chat/components/image_pick_preview_page.dart';
@@ -77,26 +77,30 @@ class _ZionChatState extends State<ZionChat> {
   }
 
   void updateMessageStatus() async {
-    final onData = await Firestore.instance
-        .collection(FirebaseUtils.chats)
-        .document(widget.oneone.id)
-        .collection(FirebaseUtils.messages)
-        .where('messageStatus', isLessThan: 2)
-        .getDocuments();
+    try {
+      final onData = await Firestore.instance
+          .collection(FirebaseUtils.chats)
+          .document(widget.oneone.id)
+          .collection(FirebaseUtils.messages)
+          .where('messageStatus', isLessThan: 2)
+          .getDocuments();
 
-    onData.documents.forEach((data) {
-      final List<String> list = [];
-      final user = data.data['user']['uid'];
-      if (user != widget.user.uid) {
-        list.add(data.documentID);
+      if (onData != null) {
+        onData.documents.forEach((data) {
+          final List<String> list = [];
+          final user = data.data['user']['uid'];
+          if (user != widget.user.uid) {
+            list.add(data.documentID);
+          }
+          if (list.length > 0) {
+            ChatServcice.updateMessageStatus(
+              chatId: widget.oneone.id,
+              messagesId: list,
+            );
+          }
+        });
       }
-      if (list.length > 0) {
-        ChatServcice.updateMessageStatus(
-          chatId: widget.oneone.id,
-          messagesId: list,
-        );
-      }
-    });
+    } catch (e) {}
   }
 
   @override

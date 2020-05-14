@@ -5,7 +5,12 @@ import 'package:hive/hive.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:zion/model/allchats.dart';
 import 'package:zion/model/app.dart';
+import 'package:zion/model/chatmodel.dart';
+import 'package:zion/model/groupmodel.dart';
+import 'package:zion/model/membermodel.dart';
+import 'package:zion/model/membersmodel.dart';
 import 'package:zion/router/router.dart';
 import 'package:zion/views/components/custom_multiprovider.dart';
 import 'package:zion/views/screens/authentication/login_page.dart';
@@ -25,7 +30,13 @@ void main() async {
 
 init() async {
   final appDocumentDir = await getApplicationDocumentsDirectory();
-  Hive..init(appDocumentDir.path);
+  Hive
+    ..init(appDocumentDir.path)
+    ..registerAdapter(AllchatAdapter())
+    ..registerAdapter(ChatModelAdapter())
+    ..registerAdapter(MemberAdapter())
+    ..registerAdapter(GroupAdapter())
+    ..registerAdapter(MembersAdapter());
 }
 
 class MyApp extends StatefulWidget {
@@ -69,7 +80,7 @@ class _MyAppState extends State<MyApp> {
     // takes user to home page if authenticated else login page
     FirebaseUser user = await FirebaseAuth.instance.currentUser();
     if (user != null) {
-      page = DefaultPage();
+      page = InitiateChats(userId: user.uid);
     }
   }
 

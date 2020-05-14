@@ -1,4 +1,5 @@
 import 'package:data_connection_checker/data_connection_checker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'package:zion/views/components/custom_bottomsheets.dart';
 import 'package:zion/views/components/custom_dialogs.dart';
 import 'package:zion/views/components/empty_space.dart';
 import 'package:zion/views/screens/authentication/custom_components.dart';
+import 'package:zion/views/screens/default_page.dart';
 import 'package:zion/views/utils/color_utils.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 import 'package:zion/views/utils/validator.dart';
@@ -249,14 +251,15 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
       // calls the loggin in function
       String result = await AuthService.login(_emailController.text.toString(),
           _passwordController.text.toString());
+      FirebaseUser user = await FirebaseAuth.instance.currentUser();
       setState(() {
         isLoggingIn = false;
       });
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (result == FirebaseUtils.success) {
           // Takes the user to the home page if login is successful
-          Router.goToReplacementScreen(
-              context: context, page: Routes.MYHOMEPAGE);
+          Router.goToReplacementWidget(
+              context: context, page: InitiateChats(userId: user.uid));
         } else {
           // shows error message if login failed
           CustomDialogs.showErroDialog(context, result);

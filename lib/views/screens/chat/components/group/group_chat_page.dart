@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/groupmodel.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/provider/group_provider.dart';
 import 'package:zion/service/chat_service.dart';
@@ -115,6 +115,7 @@ class _GroupChatPageState extends State<GroupChatPage> {
                   // update the time that a message was read
                   ChatServcice.updateGroupCheckMessageTime(
                       widget.user.id, group.id);
+
                   return ZionGroupChat(
                     chatKey: _chatViewKey,
                     messages: messages,

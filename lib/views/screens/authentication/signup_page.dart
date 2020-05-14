@@ -1,4 +1,5 @@
 import 'package:data_connection_checker/data_connection_checker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -311,10 +312,12 @@ class __CustomFormFieldsState extends State<_CustomFormFields> {
       setState(() {
         isCreatingAccount = false;
       });
+      FirebaseUser currentUser = await FirebaseAuth.instance.currentUser();
       SchedulerBinding.instance.addPostFrameCallback((_) {
         if (result == FirebaseUtils.success) {
           // Takes the user to the home page if account creation is successful
-          Router.removeWidget(context: context, page: DefaultPage());
+          Router.removeWidget(
+              context: context, page: InitiateChats(userId: currentUser.uid));
         } else {
           // shows error message if account could not be created
           CustomDialogs.showErroDialog(context, result);

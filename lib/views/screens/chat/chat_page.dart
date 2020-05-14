@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/allchats.dart';
+
 import 'package:zion/model/profile.dart';
 import 'package:zion/provider/user_provider.dart';
-import 'package:zion/service/firestore_services.dart';
 import 'package:zion/views/components/shimmer.dart';
 import 'package:zion/views/screens/chat/components/chat_widget.dart';
 import 'package:zion/views/screens/chat/components/group/group_chat_widget.dart';
@@ -17,124 +18,37 @@ class ChatPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     userProfile = Provider.of<UserProvider>(context).userProfile;
+    List<AllChat> chats = Provider.of<List<AllChat>>(context);
     return Scaffold(
       appBar: AppBar(title: Text("Chats")),
       body: Container(
         margin: EdgeInsets.symmetric(vertical: 6.0),
-        child: StreamBuilder<List<AllChat>>(
-          stream: FirestoreServices.allChatStream(userProfile.id),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final chats = snapshot.data;
-              return ListView.builder(
+        child: chats != null
+            ? ListView.separated(
                 itemCount: chats.length,
-                itemBuilder: (context, index) {
-                  final chat = chats[index];
-                  return Column(
-                    children: <Widget>[
-                      chat.isGroup
-                          ? GroupChatWidget(
-                              group: chat.group,
-                              user: userProfile,
-                            )
-                          : ChatWidget(
-                              oneone: chat.oneone,
-                              user: userProfile,
-                            ),
-                      if (chats.length > 1 && (index + 1) != chats.length)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 90.0, right: 16.0),
-                          child: Divider(height: 8.0),
-                        )
-                    ],
+                separatorBuilder: (context, index) {
+                  return const Padding(
+                    padding: EdgeInsets.only(left: 90.0, right: 16.0),
+                    child: Divider(height: 8.0),
                   );
                 },
-              );
-            }
-            return ShimmerLoadingList();
-          },
-        ),
+                itemBuilder: (context, index) {
+                  final chat = chats[index];
+                  return chat.isGroup
+                      ? GroupChatWidget(
+                          group: chat.group,
+                          user: userProfile,
+                          unread: chat.unread,
+                        )
+                      : ChatWidget(
+                          oneone: chat.oneone,
+                          user: userProfile,
+                          unread: chat.unread,
+                        );
+                },
+              )
+            : ShimmerLoadingList(),
       ),
     );
   }
 }
-
-/* 
-StreamBuilder<QuerySnapshot>(
-          stream: FirebaseUtils.firestore
-              .collection(FirebaseUtils.user)
-              .document(userProfile.id)
-              .collection(FirebaseUtils.groups)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData || snapshot.data.documents == null)
-              Offstage();
-            else if (snapshot.hasData) {
-              final groups = [];
-              snapshot.data.documents.forEach((id) {
-                groups.add(id.documentID);
-              });
-              return SizedBox.expand(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: Stream.value(Provider.of<QuerySnapshot>(context)),
-                  builder: (context, allChatsSnapshot) {
-                    if (allChatsSnapshot.hasData &&
-                        allChatsSnapshot.connectionState ==
-                            ConnectionState.done) {
-                      final allChats = allChatsSnapshot.data.documents;
-                      if (allChats.length == 0) return Container();
-                      return ListView(
-                        children: allChats.map((f) {
-                          final chat = f;
-
-                          if (groups.contains(chat.documentID)) {
-                            final chatType = chat.data['chat_type'];
-                            if (chatType == FirebaseUtils.group) {
-                              Group group = Group.fromMap(map: chat.data);
-                              return Column(
-                                children: [
-                                  GroupChatWidget(
-                                      group: group, user: userProfile),
-                                  if (allChats.length > 1 &&
-                                      f.documentID !=
-                                          allChats[allChats.length - 1]
-                                              .documentID)
-                                    const Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 90.0, right: 16.0),
-                                      child: Divider(height: 8.0),
-                                    )
-                                ],
-                              );
-                            }
-                            if (chatType == FirebaseUtils.oneone) {
-                              ChatModel oneone =
-                                  ChatModel.fromMap(map: chat.data);
-                              return Column(
-                                children: [
-                                  ChatWidget(oneone: oneone, user: userProfile),
-                                  if (allChats.length > 1 &&
-                                      f.documentID !=
-                                          allChats[allChats.length - 1]
-                                              .documentID)
-                                    const Padding(
-                                      padding: EdgeInsets.only(
-                                          left: 90.0, right: 16.0),
-                                      child: Divider(height: 8.0),
-                                    )
-                                ],
-                              );
-                            }
-                          }
-                          return Offstage();
-                        }).toList(),
-                      );
-                    }
-                    return ShimmerLoadingList();
-                  },
-                ),
-              );
-            }
-            return ShimmerLoadingList();
-          },
-        ), */

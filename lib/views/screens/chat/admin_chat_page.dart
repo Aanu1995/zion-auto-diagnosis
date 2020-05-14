@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/chatmodel.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/components/empty_space.dart';

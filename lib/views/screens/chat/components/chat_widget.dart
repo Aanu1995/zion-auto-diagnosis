@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/chatmodel.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/views/components/shimmer.dart';
 import 'package:zion/views/screens/chat/admin_chat_page.dart';
@@ -12,7 +12,8 @@ import 'package:zion/views/utils/firebase_utils.dart';
 class ChatWidget extends StatelessWidget {
   final ChatModel oneone;
   final UserProfile user;
-  const ChatWidget({this.oneone, this.user});
+  final int unread;
+  const ChatWidget({this.oneone, this.user, this.unread});
 
 // displays last message details if user is not typing
   @override
@@ -92,15 +93,27 @@ class ChatWidget extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16.0),
-                    UnreadMessages(
-                      oneone: oneone,
-                      user: user,
-                    )
+                    unread == 0
+                        ? Offstage()
+                        : CircleAvatar(
+                            backgroundColor: Colors.green,
+                            radius: 10.5,
+                            child: FittedBox(
+                              child: Padding(
+                                padding: const EdgeInsets.all(5.0),
+                                child: Text(
+                                  "$unread",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                   ],
                 ),
               ),
               onTap: () async {
-                // takes user to the group chat page
                 pushDynamicScreen(
                   context,
                   screen: MaterialPageRoute(
@@ -167,75 +180,6 @@ class UserTyping extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class UnreadMessages extends StatelessWidget {
-  final UserProfile user;
-  final ChatModel oneone;
-  const UnreadMessages({this.user, this.oneone});
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(right: 8.0, left: 16.0),
-      child: FutureBuilder<QuerySnapshot>(
-        future: FirebaseUtils.firestore
-            .collection(FirebaseUtils.chats)
-            .document(oneone.id)
-            .collection(FirebaseUtils.messages)
-            .where('messageStatus', isLessThan: 2)
-            .getDocuments(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data.documents.length == 0) {
-            return Offstage();
-          } else if (snapshot.hasData) {
-            final messages = snapshot.data.documents;
-            int unreadMessages = 0;
-
-            return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseUtils.firestore
-                  .collection(FirebaseUtils.user)
-                  .document(user.id)
-                  .collection(FirebaseUtils.groups)
-                  .document(oneone.id)
-                  .get(),
-              builder: (context, snap) {
-                if (!snap.hasData || snap.data.data == null) {
-                  return Offstage();
-                } else {
-                  messages.forEach((mess) {
-                    int messTime = int.parse(mess.documentID);
-                    int lastSeen = snap.data.data['time'];
-                    if (lastSeen < messTime) {
-                      unreadMessages = unreadMessages + 1;
-                    }
-                  });
-
-                  return unreadMessages == 0
-                      ? Offstage()
-                      : CircleAvatar(
-                          backgroundColor: Colors.green,
-                          radius: 10.5,
-                          child: FittedBox(
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Text(
-                                "$unreadMessages",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                }
-              },
-            );
-          }
-          return Offstage();
-        },
-      ),
     );
   }
 }

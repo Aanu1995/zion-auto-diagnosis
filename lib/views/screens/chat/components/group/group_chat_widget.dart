@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/groupmodel.dart';
 import 'package:zion/model/profile.dart';
 import 'package:zion/provider/group_provider.dart';
 import 'package:zion/views/screens/chat/components/group/group_chat_page.dart';
 import 'package:zion/views/screens/settings/components/components.dart';
-import 'package:zion/views/utils/firebase_utils.dart';
 
 class GroupChatWidget extends StatelessWidget {
   final Group group;
   final UserProfile user;
-  const GroupChatWidget({this.group, this.user});
+  final int unread;
+  const GroupChatWidget({this.group, this.user, this.unread});
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,23 @@ class GroupChatWidget extends StatelessWidget {
                 child: UserTyping(user: user, group: group),
               ),
               const SizedBox(width: 16.0),
-              UnreadMessages(user: user, group: group),
+              unread == 0
+                  ? Offstage()
+                  : CircleAvatar(
+                      backgroundColor: Colors.green,
+                      radius: 10.5,
+                      child: FittedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Text(
+                            "$unread",
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
             ],
           ),
         ),
@@ -82,73 +98,6 @@ class GroupChatWidget extends StatelessWidget {
             platformSpecific: true,
             withNavBar: false,
           );
-        },
-      ),
-    );
-  }
-}
-
-class UnreadMessages extends StatelessWidget {
-  final Group group;
-  final UserProfile user;
-  const UnreadMessages({this.group, this.user});
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(right: 8.0, left: 16.0),
-      child: FutureBuilder<QuerySnapshot>(
-        future: FirebaseUtils.firestore
-            .collection(FirebaseUtils.chats)
-            .document(group.id)
-            .collection(FirebaseUtils.messages)
-            .getDocuments(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData || snapshot.data.documents == null) {
-            return Offstage();
-          } else {
-            final messages = snapshot.data.documents;
-
-            return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseUtils.firestore
-                  .collection(FirebaseUtils.user)
-                  .document(user.id)
-                  .collection(FirebaseUtils.groups)
-                  .document(group.id)
-                  .get(),
-              builder: (context, snap) {
-                print('Hello');
-                if (!snap.hasData || snap.data.data == null) {
-                  return Offstage();
-                } else {
-                  int unreadMessages = 0;
-                  messages.forEach((mess) {
-                    int messTime = int.parse(mess.documentID);
-                    int lastSeen = snap.data.data['time'];
-                    if (lastSeen < messTime) {
-                      unreadMessages = unreadMessages + 1;
-                    }
-                  });
-                  return unreadMessages == 0
-                      ? Offstage()
-                      : CircleAvatar(
-                          backgroundColor: Colors.green,
-                          radius: 10.5,
-                          child: FittedBox(
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Text(
-                                "$unreadMessages",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                }
-              },
-            );
-          }
         },
       ),
     );

@@ -4,13 +4,28 @@ import 'package:flutter/scheduler.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
+import 'package:zion/model/allchats.dart';
 import 'package:zion/model/app.dart';
 import 'package:zion/provider/user_provider.dart';
+import 'package:zion/service/firestore_services.dart';
 import 'package:zion/service/user_profile_service.dart';
 import 'package:zion/views/screens/chat/chat_page.dart';
 import 'package:zion/views/screens/home/home_page.dart';
 import 'package:zion/views/screens/search/search_page.dart';
 import 'package:zion/views/screens/settings/settings_page.dart';
+
+class InitiateChats extends StatelessWidget {
+  final String userId;
+  InitiateChats({this.userId});
+  final FirestoreServices _services = FirestoreServices();
+  @override
+  Widget build(BuildContext context) {
+    return StreamProvider<List<AllChat>>(
+      create: (context) => _services.doubleChatStream(userId),
+      child: DefaultPage(),
+    );
+  }
+}
 
 class DefaultPage extends StatefulWidget {
   DefaultPage({Key key}) : super(key: key);
@@ -33,6 +48,11 @@ class _DefaultPageState extends State<DefaultPage> {
   void initState() {
     super.initState();
     UserProfileService.setOnlineStatus();
+    // initialize
+    Provider.of<User>(context, listen: false).getUser();
+    Provider.of<UserProvider>(context, listen: false);
+    Provider.of<QuerySnapshot>(context, listen: false);
+    Provider.of<List<AllChat>>(context, listen: false);
     // controllers for the bottom_nav_bar
     _controller = PersistentTabController(initialIndex: initialIndex);
 
@@ -58,10 +78,6 @@ class _DefaultPageState extends State<DefaultPage> {
         });
       }
     });
-    // initialize
-    Provider.of<User>(context, listen: false).getUser();
-    Provider.of<UserProvider>(context, listen: false);
-    Provider.of<QuerySnapshot>(context, listen: false);
   }
 
 // list of bottom navigation bar items
@@ -80,7 +96,38 @@ class _DefaultPageState extends State<DefaultPage> {
         inactiveColor: inActiveColor,
       ),
       PersistentBottomNavBarItem(
-        icon: Icon(Icons.message),
+        icon: Consumer<List<AllChat>>(
+          builder: (context, data, snaphot) {
+            return Stack(
+              children: [
+                Icon(Icons.message),
+                Consumer<List<AllChat>>(
+                  builder: (context, data, child) {
+                    bool isUnread = false;
+                    if (data != null) {
+                      for (AllChat chat in data) {
+                        if (chat.unread > 0) {
+                          isUnread = true;
+                          break;
+                        }
+                      }
+                    }
+                    return isUnread
+                        ? Positioned(
+                            right: 0.0,
+                            top: 0.0,
+                            child: CircleAvatar(
+                              radius: 5,
+                              backgroundColor: Colors.red,
+                            ),
+                          )
+                        : Offstage();
+                  },
+                )
+              ],
+            );
+          },
+        ),
         title: ("Chats"),
         activeColor: activeColor,
         inactiveColor: inActiveColor,
@@ -97,7 +144,7 @@ class _DefaultPageState extends State<DefaultPage> {
   @override
   Widget build(BuildContext context) {
     // assign primary color to the activeColor variable
-    final appContext = Theme.of(context);
+    final appContext = Theme.of(context);               
     activeColor = appContext.bottomAppBarTheme.color;
 
     return PersistentTabView(

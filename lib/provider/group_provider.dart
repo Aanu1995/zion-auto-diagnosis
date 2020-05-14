@@ -1,5 +1,5 @@
 // this get the current group being viewed
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/groupmodel.dart';
 
 class CurrentGroupProvider {
   Group _group;

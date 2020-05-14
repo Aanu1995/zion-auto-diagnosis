@@ -8,7 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/groupmodel.dart';
 import 'package:zion/service/chat_service.dart';
 import 'package:zion/views/screens/chat/components/full_image.dart';
 import 'package:zion/views/screens/chat/components/image_pick_preview_page.dart';

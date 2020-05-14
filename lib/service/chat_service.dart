@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:zion/model/chat.dart';
+import 'package:zion/model/chatmodel.dart';
 import 'package:zion/views/screens/chat/components/zionchat/zion.dart';
 import 'package:zion/views/utils/firebase_utils.dart';
 
