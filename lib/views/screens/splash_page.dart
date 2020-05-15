@@ -1,7 +1,6 @@
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:zion/model/app.dart';
@@ -53,31 +52,12 @@ class _SplashPageState extends State<SplashPage> {
       backgroundColor: ColorUtils.statusBarColor,
       body: Container(
         child: Center(
-          child: Column(
-            children: [
-              SizedBox(height: MediaQuery.of(context).size.height * 0.18),
-              Image.asset(
-                ImageUtils.diagnosisBox,
-                height: 150.0,
-                color: Colors.white,
-                width: double.maxFinite,
-                fit: BoxFit.contain,
-              ),
-              Text(
-                "ZION",
-                style: GoogleFonts.pacifico(
-                  color: Colors.white,
-                  fontSize: 70.0,
-                ),
-              ),
-              Text(
-                "Auto Diagnosis",
-                style: GoogleFonts.pacifico(
-                  color: Colors.white,
-                  fontSize: 30.0,
-                ),
-              )
-            ],
+          child: Image.asset(
+            ImageUtils.logo,
+            height: 150.0,
+            color: Colors.white,
+            width: double.maxFinite,
+            fit: BoxFit.contain,
           ),
         ),
       ),
